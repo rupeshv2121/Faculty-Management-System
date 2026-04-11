@@ -3,16 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Profile — Faculty Management System</title>
-    <link rel="stylesheet" href="css/style.css" />
-    <link rel="icon" type="image/x-icon" href="./assets/logo.ico" />
+    <title>Faculty Detail — Faculty Management System</title>
+    <link rel="stylesheet" href="../css/style.css" />
+    <link rel="icon" type="image/x-icon" href="../assets/logo.ico" />
   </head>
   <body>
     <div class="app-shell">
       <!-- Sidebar Loader -->
       <div id="sidebarContainer"></div>
       <script>
-        fetch("sidebar.html")
+        fetch("../components/sidebar.html")
           .then((response) => response.text())
           .then((html) => {
             document.getElementById("sidebarContainer").innerHTML = html;
@@ -27,7 +27,18 @@
         <div class="topbar">
           <div style="display: flex; align-items: center; gap: 14px">
             <button class="hamburger" id="hamburger">&#9776;</button>
-            <h1>My Profile</h1>
+            <div>
+              <a
+                href="faculty.html"
+                style="
+                  font-size: 12px;
+                  color: var(--muted);
+                  text-decoration: none;
+                "
+                >&larr; Faculty Directory</a
+              >
+              <h1 style="margin-top: 2px" id="pageTitle">Faculty Detail</h1>
+            </div>
           </div>
           <div class="topbar-actions" id="topbarActions"></div>
         </div>
@@ -41,17 +52,13 @@
       </div>
     </div>
 
-    <script src="js/api.js"></script>
-    <script src="js/common.js"></script>
-    <script src="js/auth.js"></script>
-    <!-- Profile modules -->
-    <script src="js/profiles/common.js"></script>
-    <script src="js/profiles/faculty.js"></script>
-    <!-- Main profile controller -->
-    <script src="js/profiles/profile.js"></script>
+    <script src="../js/api.js"></script>
+    <script src="../js/common.js"></script>
+    <script src="../js/auth.js"></script>
+    <script src="../js/faculty-detail.js"></script>
     <!-- Load profile dropdown after common.js -->
     <script>
-      fetch("profile-dropdown.html")
+      fetch("../components/profile-dropdown.html")
         .then((response) => response.text())
         .then((html) => {
           document.getElementById("topbarActions").innerHTML = html;
