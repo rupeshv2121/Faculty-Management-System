@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login — Faculty Management System</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link rel="icon" type="image/x-icon" href="./assets/logo.ico" />
+  </head>
+  <body>
+    <div class="login-page">
+      <div class="login-box">
+        <div class="login-header">
+          <div class="logo"><img src="./assets/logo.png" alt="" /></div>
+          <h1>ZHCET Aligarh</h1>
+          <p>Faculty Management System</p>
+        </div>
+
+        <form class="login-form" id="loginForm">
+          <div
+            id="alertBox"
+            class="alert alert-error"
+            style="display: none"
+          ></div>
+
+          <div class="form-group">
+            <label for="username">Username</label>
+            <input
+              class="form-control"
+              type="text"
+              id="username"
+              placeholder="Enter your username"
+              autocomplete="username"
+              required
+            />
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <input
+              class="form-control"
+              type="password"
+              id="password"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary"
+            id="loginBtn"
+            style="width: 100%; justify-content: center; padding: 11px"
+          >
+            Sign In
+          </button>
+        </form>
+
+        <div class="login-demo">
+          <h4>Demo Credentials</h4>
+          <div class="demo-row">
+            <span class="role">Admin</span>
+            <span class="creds">101 / admin123</span>
+          </div>
+          <div class="demo-row">
+            <span class="role">Faculty</span>
+            <span class="creds">111 / mummy@123</span>
+          </div>
+          <div class="demo-row">
+            <span class="role">Student</span>
+            <span class="creds">103 / n123</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/common.js"></script>
+    <script src="js/login.js"></script>
+  </body>
+</html>

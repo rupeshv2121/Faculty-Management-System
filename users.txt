@@ -1,0 +1,34 @@
+101,Rupesh,CSE,Professor,9999999999,r@mail.com,AI,admin123,admin
+102,Aman,CSE,Professor,12345467890,test@gmail.com,ML,fac123,student
+103,Neha,IT,Student,7777777777,n@mail.com,Data,n123,student
+111,mummy,CSE,Professor,8888884897,m@gmail.com,AI,mummy@123,faculty
+1,Prof. Izharuddin,Computer Engineering,Professor,9412545793,izharuddin@zhcet.ac.in,VLSI Design; Signal Processing; Signal Security,default123,faculty
+2,Prof. Nesar Ahmad,Computer Engineering,Professor,,n.ahmad.ce@amu.ac.in,Artificial Intelligence; Applied Soft Computing; Digital Learning,default123,faculty
+3,Prof. Ash Mohammad Abbas,Computer Engineering,Professor,8791685906,am.abbas.ce@amu.ac.in,Computer Networks,default123,faculty
+4,Prof. M. M. Sufyan Beg,Computer Engineering,Professor,9999071406,mmsbeg.ce@amu.ac.in,Computer Architecture; Parallel Computing; Data Mining; NLP,default123,faculty
+5,Prof. Mohammad Sarosh Umar,Computer Engineering,Professor,9457558766,saroshumar@zhcet.ac.in,Computer Graphics; User Authentication,default123,faculty
+6,Prof. Rashid Ali,Computer Engineering,Professor,9411419429,rashidali.cse@zhcet.ac.in,Web Mining; Soft Computing,default123,faculty
+7,Prof. Saiful Islam,Computer Engineering,Professor,9358257122,saifulislam@zhcet.ac.in,Digital Forensics; Data Hiding; Computer Security,default123,faculty
+8,Mr. Misbahur Rahman Warsi,Computer Engineering,Associate Professor,9411488531,warsimr@yahoo.com,Software Engineering; Compiler Design,default123,faculty
+9,Mr. Mohammed Abdul Qadeer,Computer Engineering,Associate Professor,9897705269,maqadeer@amu.ac.in,Computer Networks; Wireless Networks; LTE; QoS,default123,faculty
+10,Mr. Muneeb Hasan Khan,Computer Engineering,Assistant Professor,7017760456,muneebhkhan@zhcet.ac.in,,default123,faculty
+11,Prof. Tahira Parveen,Electronics Engineering,Professor,9897001202,tahiraparveen@zhcet.ac.in,Analog Signal Processing,default123,faculty
+12,Prof. Ekram Khan,Electronics Engineering,Professor,9457110112,ekhan.el@amu.ac.in,Communication Systems; Signal Processing; Image Coding; Biomedical Image Processing; Video Transmission,default123,faculty
+13,Dr. Tajinder Singh Arora,Electronics Engineering,Associate Professor,9818671663,tsarora.el@amu.ac.in,Current Mode Signal Processing; Electronic Circuit Design; Electronic Devices,default123,faculty
+14,Dr. Mohd Tausif,Electronics Engineering,Assistant Professor,,mohdtausif@zhcet.ac.in,Image Processing; Artificial Intelligence; Holographic Image Coding,default123,faculty
+15,Dr. Mohd Yasir,Electronics Engineering,Assistant Professor,,mohdyasir@zhcet.ac.in,Low Power Analog Design; Energy Harvesting,default123,faculty
+16,Prof. Yusuf Uzzaman Khan,Electrical Engineering,Professor,,yusufzkhan@zhcet.ac.in,Signals and Systems; Digital Signal Processing; Control Systems; Machine Learning; Artificial Intelligence; Neural Networks; Biomedical Engineering,default123,faculty
+17,Prof. Mohammad Fazle Azeem,Electrical Engineering,Professor,9945432984,mf.azeem@zhcet.ac.in,Control; Instrumentation; AI Applications,default123,faculty
+18,Prof. Imtiaz Ashraf,Electrical Engineering,Professor,9412878824,iashraf@rediffmail.com,Electrical Power Systems; Renewable Energy; Electrical Machines,default123,faculty
+19,Prof. Salman Hameed,Electrical Engineering,Professor,9412483867,hameeddee@gmail.com,FACTS Controllers; AI in Power Systems,default123,faculty
+20,Prof. Abu Tariq,Electrical Engineering,Professor,9897617078,abutariq@zhcet.ac.in,Renewable Energy; Power Electronics; Drives,default123,faculty
+21,Dr. Mohd Danish,Chemical Engineering,Professor,9997579474,mdanish77@rediffmail.com,Mathematical Methods; Process Modelling; Transport Processes,default123,faculty
+22,Dr. Ahmad Tariq Jameel,Chemical Engineering,Professor,9068319003,,Mathematical Modeling; Reactor Design; Transport Phenomena; Bioprocess Engineering; Enzyme Immobilization; Nano Biosensors; Nonlinear Dynamics,default123,faculty
+23,Mr. Naseem Ahmad Khan,Chemical Engineering,Associate Professor,9411212431,nakhan63@rediffmail.com,,default123,faculty
+24,Mr. Mohammed Abdul Hakeem,Chemical Engineering,Associate Professor,9411040023,mahakim@rediffmail.com,,default123,faculty
+25,Dr. Sheeba Jilani,Chemical Engineering,Associate Professor,,sheeba_jilani@yahoo.co.in,,default123,faculty
+26,Prof. Amjad Masood,Civil Engineering,Professor,9410426876,a.masood.cv@amu.ac.in,Earthquake Resistant Design; High Strength Concrete,default123,faculty
+27,Prof. Mohammed Arif,Civil Engineering,Professor,9411804371,m.arif.cv@amu.ac.in,Ferrocement Composites; Reinforced Concrete; Structural Analysis; Corrosion Resistance; Geopolymer Concrete,default123,faculty
+28,Prof. Izharul Haq Farooqi,Civil Engineering,Professor,9412176757,farooqi_izhar@yahoo.com,Environmental Engineering; Corrosion Control,default123,faculty
+29,Prof. Javed Alam,Civil Engineering,Professor,9837169427,jalam.cv@amu.ac.in,Water Resources; Soft Computing; Porous Media Flow,default123,faculty
+30,Prof. Mohd. Masroor Alam,Civil Engineering,Professor,9412459471,mmalam.cv@amu.ac.in,Engineering Geology; Sedimentology; Rock Engineering; Disaster Management,default123,faculty

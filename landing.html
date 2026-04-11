@@ -1,0 +1,370 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Faculty Management System — ZHCET Aligarh</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="icon" type="image/x-icon" href="./assets/logo.ico" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="./css/landing.css" />
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <header class="nav">
+      <div class="nav-inner">
+        <div class="nav-logo">
+          <img src="./assets/logo.ico" alt="" class="logo" />
+          <span> ZHCET Aligarh </span>
+        </div>
+        <nav class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#roles">Roles</a>
+          <a href="#tech">Tech Stack</a>
+        </nav>
+        <a href="login.html" class="nav-cta">Launch App →</a>
+      </div>
+    </header>
+
+    <!-- HERO -->
+    <section class="hero">
+      <div class="hero-grid"></div>
+      <div class="hero-inner">
+        <div class="pill">Third Year Project Assignment — 2025–26</div>
+        <h1>Faculty Management<br /><span>System</span></h1>
+        <p>
+          A full-stack web application demonstrating role-based access control,
+          secure session authentication, and CRUD operations — built as a final
+          year project in Computer Science.
+        </p>
+        <div class="hero-btns">
+          <a href="login.html" class="btn-gold">Open Application</a>
+          <a href="#roles" class="btn-outline">View Demo Credentials</a>
+        </div>
+        <div class="stats-row">
+          <div class="stat-item">
+            <div class="n">3</div>
+            <div class="l">User Roles</div>
+          </div>
+          <div class="stat-item">
+            <div class="n">8</div>
+            <div class="l">Faculty Records</div>
+          </div>
+          <div class="stat-item">
+            <div class="n">5</div>
+            <div class="l">Departments</div>
+          </div>
+          <div class="stat-item">
+            <div class="n">100%</div>
+            <div class="l">File-based Storage</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- FEATURES -->
+    <div id="features">
+      <div class="section">
+        <div class="section-head">
+          <div class="section-badge">Key Features</div>
+          <h2>What's inside?</h2>
+          <p>
+            A comprehensive set of features designed to demonstrate real-world
+            web application patterns.
+          </p>
+        </div>
+        <div class="features-grid">
+          <div class="feat-card dark">
+            <div class="icon">🔐</div>
+            <h3>Role-Based Access Control</h3>
+            <p>
+              Three distinct roles — Admin, Faculty, and Student — each with
+              carefully scoped permissions enforced on both frontend and
+              backend.
+            </p>
+          </div>
+          <div class="feat-card">
+            <div class="icon">🍪</div>
+            <h3>Session Authentication</h3>
+            <p>
+              HTTP-only cookie sessions with 24-hour TTL, randomly generated
+              32-byte IDs, and SHA-256 + salt password hashing. No JWT, no
+              complexity.
+            </p>
+          </div>
+          <div class="feat-card">
+            <div class="icon">📂</div>
+            <h3>File-Based Storage</h3>
+            <p>
+              Pipe-delimited flat-file storage (users.txt)
+              intentionally demonstrates core concepts without a database
+              dependency.
+            </p>
+          </div>
+          <div class="feat-card">
+            <div class="icon">📊</div>
+            <h3>Role-Specific Dashboards</h3>
+            <p>
+              Admin sees stats and charts, Faculty sees their profile and
+              colleagues, Students get a search-first view with department
+              browsing.
+            </p>
+          </div>
+          <div class="feat-card">
+            <div class="icon">✏️</div>
+            <h3>Full CRUD Operations</h3>
+            <p>
+              Admin can create, view, update, and delete faculty records.
+              Faculty can update their own email and mobile. Students have
+              read-only access.
+            </p>
+          </div>
+          <div class="feat-card">
+            <div class="icon">🔍</div>
+            <h3>Live Faculty Search</h3>
+            <p>
+              Real-time search by name, department, or subject, with results
+              shown instantly — no page reload required.
+            </p>
+          </div>
+          <div class="feat-card">
+            <div class="icon">📈</div>
+            <h3>Department Analytics</h3>
+            <p>
+              Bar chart visualizing faculty distribution across departments,
+              with summary stats for total faculty, departments, and students.
+            </p>
+          </div>
+          <div class="feat-card">
+            <div class="icon">🛡️</div>
+            <h3>CORS &amp; Security</h3>
+            <p>
+              Properly configured CORS with credentials support, input
+              sanitization, and role checks on every protected API endpoint.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ROLES -->
+    <div id="roles" class="section-alt">
+      <div class="section">
+        <div class="section-head">
+          <div class="section-badge">Access Control</div>
+          <h2>Three Roles, One System</h2>
+          <p>
+            Each role gets a tailored experience. Click "Reveal" on any card to
+            see the demo credentials.
+          </p>
+        </div>
+        <div class="roles-grid">
+          <!-- Admin -->
+          <div class="role-card">
+            <div class="role-header" style="background: #1e3a5f">
+              <div class="rh-top">
+                <span class="ricon">👑</span>
+                <div>
+                  <div class="rtitle">Administrator</div>
+                  <div class="rsub">System Manager</div>
+                </div>
+              </div>
+            </div>
+            <div class="role-body">
+              <div class="cap-label">Capabilities</div>
+              <ul>
+                <li style="--dot: #1e3a5f">
+                  View full dashboard with analytics
+                </li>
+                <li>Add, edit, and delete faculty records</li>
+                <li>Manage all system data</li>
+                <li>View department breakdown charts</li>
+                <li>Access all pages and reports</li>
+              </ul>
+              <div class="cred-box" style="background: #e8eef6">
+                <div class="cred-title" style="color: #1e3a5f">
+                  Demo Credentials
+                  <button
+                    onclick="toggleCred('admin')"
+                    id="admin-btn"
+                    style="color: #1e3a5f"
+                  >
+                    Reveal
+                  </button>
+                </div>
+                <div class="cred-row">
+                  <span class="u">admin</span
+                  ><span class="p" id="admin-p1">••••••••</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Faculty -->
+          <div class="role-card">
+            <div class="role-header" style="background: #c9973a">
+              <div class="rh-top">
+                <span class="ricon">🧑‍🏫</span>
+                <div>
+                  <div class="rtitle">Faculty</div>
+                  <div class="rsub">Teaching Staff</div>
+                </div>
+              </div>
+            </div>
+            <div class="role-body">
+              <div class="cap-label">Capabilities</div>
+              <ul>
+                <li>View own profile and details</li>
+                <li>Update email and mobile only</li>
+                <li>See department colleagues</li>
+                <li>Browse the full faculty directory</li>
+                <li>View-only access to all faculty</li>
+              </ul>
+              <div class="cred-box" style="background: #fdf6ea">
+                <div class="cred-title" style="color: #c9973a">
+                  Demo Credentials
+                  <button
+                    onclick="toggleCred('faculty')"
+                    id="faculty-btn"
+                    style="color: #c9973a"
+                  >
+                    Reveal
+                  </button>
+                </div>
+                <div class="cred-row">
+                  <span class="u">faculty1</span
+                  ><span class="p" id="faculty-p1">••••••</span>
+                </div>
+                <div class="cred-row">
+                  <span class="u">faculty2</span
+                  ><span class="p" id="faculty-p2">••••••</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Student -->
+          <div class="role-card">
+            <div class="role-header" style="background: #3a8a6a">
+              <div class="rh-top">
+                <span class="ricon">🎒</span>
+                <div>
+                  <div class="rtitle">Student</div>
+                  <div class="rsub">Enrolled Student</div>
+                </div>
+              </div>
+            </div>
+            <div class="role-body">
+              <div class="cap-label">Capabilities</div>
+              <ul>
+                <li>Search faculty by name/dept/subject</li>
+                <li>Browse by department cards</li>
+                <li>View faculty contact information</li>
+                <li>Access the full faculty directory</li>
+                <li>Read-only — no edit permissions</li>
+              </ul>
+              <div class="cred-box" style="background: #e8f6ee">
+                <div class="cred-title" style="color: #3a8a6a">
+                  Demo Credentials
+                  <button
+                    onclick="toggleCred('student')"
+                    id="student-btn"
+                    style="color: #3a8a6a"
+                  >
+                    Reveal
+                  </button>
+                </div>
+                <div class="cred-row">
+                  <span class="u">student1</span
+                  ><span class="p" id="student-p1">••••••</span>
+                </div>
+                <div class="cred-row">
+                  <span class="u">student2</span
+                  ><span class="p" id="student-p2">••••••</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- HOW IT WORKS -->
+    <div class="section">
+      <div class="section-head">
+        <div class="section-badge">Architecture</div>
+        <h2>How It Works</h2>
+      </div>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-num">01</div>
+          <div class="step-icon">🌐</div>
+          <h3>Client Request</h3>
+          <p>
+            User visits the app and logs in with their role-specific credentials
+            via the login form.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">02</div>
+          <div class="step-icon">🔐</div>
+          <h3>Auth &amp; Session</h3>
+          <p>
+            Server validates credentials, hashes password with SHA-256 + salt,
+            creates an HTTP-only session cookie.
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">03</div>
+          <div class="step-icon">⚙️</div>
+          <h3>API Processing</h3>
+          <p>
+            Express routes check session + role, then read/write from flat-file
+            storage (faculty.txt / users.txt).
+          </p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">04</div>
+          <div class="step-icon">📊</div>
+          <h3>Role Dashboard</h3>
+          <p>
+            Response is returned to the client and the role-specific dashboard
+            is rendered with real data.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- CTA -->
+    <section class="cta-section">
+      <h2>Ready to explore?</h2>
+      <p>
+        Log in as any role to experience the full application. All demo accounts
+        are pre-loaded with sample data.
+      </p>
+      <a href="login.html" class="btn-gold" style="display: inline-block"></a>
+        Launch Application</a
+      >
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+      <div class="footer-inner">
+        <div class="footer-logo">
+          <img src="./assets/logo.png" alt="">
+          <span>
+            ZHCET Aligarh Faculty Management System</div>
+          </span>
+        <div class="footer-right">
+          Third Year Project · Computer Science · 2025–26
+        </div>
+      </div>
+    </footer>
+
+    <script src="./js/landing.js"></script>
+  </body>
+</html>
