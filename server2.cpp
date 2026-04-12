@@ -489,6 +489,136 @@ string handleAddFaculty(const string &body, const string &allHeaders)
     return httpResponse(500, "application/json", R"({"status":"error","message":"Failed to add faculty"})");
 }
 
+string handleDeleteFaculty(const string &facultyId, const string &allHeaders)
+{
+    string sessionId;
+    size_t cookiePos = allHeaders.find("Cookie:");
+    if (cookiePos != string::npos)
+    {
+        size_t cookieEnd = allHeaders.find("\r\n", cookiePos);
+        string cookies = allHeaders.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
+        size_t sessionStart = cookies.find("sessionId=");
+        if (sessionStart != string::npos)
+        {
+            sessionStart += 10;
+            size_t sessionEnd = cookies.find(";", sessionStart);
+            if (sessionEnd == string::npos)
+                sessionEnd = cookies.length();
+            sessionId = cookies.substr(sessionStart, sessionEnd - sessionStart);
+            sessionId = trim(sessionId);
+        }
+    }
+    if (sessionId.empty() || sessions.find(sessionId) == sessions.end())
+    {
+        return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
+    }
+    auto allFaculty = loadData();
+    vector<Faculty> updatedList;
+    bool found = false;
+    for (const auto &f : allFaculty)
+    {
+        if (f.id != facultyId)
+        {
+            updatedList.push_back(f);
+        }
+        else
+        {
+            found = true;
+        }
+    }
+    if (!found)
+    {
+        return httpResponse(404, "application/json", R"({"status":"error","message":"Faculty not found"})");
+    }
+    ofstream userFile("users.txt", ios::trunc);
+    if (userFile)
+    {
+        bool first = true;
+        for (const auto &f : updatedList)
+        {
+            string line = f.id + "," + f.name + "," + f.dept + "," + f.desig + "," + f.mobile + "," + f.email + "," + f.spec + "," + f.pass + "," + f.role;
+            if (!first)
+                userFile << "\n";
+            userFile << line;
+            first = false;
+        }
+        userFile.close();
+        cout << "FACULTY DELETED: " << facultyId << endl;
+        return httpResponse(200, "application/json", R"({"status":"success","message":"Faculty deleted successfully"})");
+    }
+    return httpResponse(500, "application/json", R"({"status":"error","message":"Failed to delete faculty"})");
+}
+
+string handleUpdateFaculty(const string &facultyId, const string &body, const string &allHeaders)
+{
+    string sessionId;
+    size_t cookiePos = allHeaders.find("Cookie:");
+    if (cookiePos != string::npos)
+    {
+        size_t cookieEnd = allHeaders.find("\r\n", cookiePos);
+        string cookies = allHeaders.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
+        size_t sessionStart = cookies.find("sessionId=");
+        if (sessionStart != string::npos)
+        {
+            sessionStart += 10;
+            size_t sessionEnd = cookies.find(";", sessionStart);
+            if (sessionEnd == string::npos)
+                sessionEnd = cookies.length();
+            sessionId = cookies.substr(sessionStart, sessionEnd - sessionStart);
+            sessionId = trim(sessionId);
+        }
+    }
+    if (sessionId.empty() || sessions.find(sessionId) == sessions.end())
+    {
+        return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
+    }
+    auto data = parseJSON(body);
+    auto allFaculty = loadData();
+    bool found = false;
+    for (auto &f : allFaculty)
+    {
+        if (f.id == facultyId)
+        {
+            found = true;
+            if (!data["name"].empty())
+                f.name = data["name"];
+            if (!data["email"].empty())
+                f.email = data["email"];
+            if (!data["mobile"].empty())
+                f.mobile = data["mobile"];
+            if (!data["department"].empty())
+                f.dept = data["department"];
+            if (!data["designation"].empty())
+                f.desig = data["designation"];
+            if (!data["subject"].empty())
+                f.spec = data["subject"];
+            break;
+        }
+    }
+    if (!found)
+    {
+        return httpResponse(404, "application/json", R"({"status":"error","message":"Faculty not found"})");
+    }
+    ofstream userFile("users.txt", ios::trunc);
+    if (userFile)
+    {
+        bool first = true;
+        for (const auto &f : allFaculty)
+        {
+            string line = f.id + "," + f.name + "," + f.dept + "," + f.desig + "," + f.mobile + "," + f.email + "," + f.spec + "," + f.pass + "," + f.role;
+            if (!first)
+                userFile << "\n";
+            userFile << line;
+            first = false;
+        }
+        userFile.close();
+        cout << "FACULTY UPDATED: " << facultyId << endl;
+        string response = R"({"status":"success","message":"Faculty updated successfully","faculty":{"id":")" + jsonEscape(facultyId) + R"("}})";
+        return httpResponse(200, "application/json", response);
+    }
+    return httpResponse(500, "application/json", R"({"status":"error","message":"Failed to update faculty"})");
+}
+
 void handleRequest(int clientSocket, const string &requestLine, const string &allHeaders, const string &body);
 
 void handleClient(int clientSocket)
@@ -577,11 +707,6 @@ void handleRequest(int clientSocket, const string &requestLine, const string &al
         string search = getQueryParam(requestLine, "search");
         sendAll(clientSocket, handleListFaculty(search));
     }
-    else if (path.find("/api/faculty/") == 0 && path != "/api/faculty/list")
-    {
-        string facultyId = path.substr(13);
-        sendAll(clientSocket, handleGetFaculty(facultyId));
-    }
     else if (path == "/api/faculty")
     {
         sendAll(clientSocket, handleListFaculty());
@@ -601,6 +726,23 @@ void handleRequest(int clientSocket, const string &requestLine, const string &al
     else if (path == "/api/faculty" && method == "POST")
     {
         sendAll(clientSocket, handleAddFaculty(body, allHeaders));
+    }
+    else if (path.find("/api/faculty/") == 0 && path != "/api/faculty/list")
+    {
+        size_t lastSlash = path.rfind("/");
+        string facultyId = path.substr(lastSlash + 1);
+        if (method == "DELETE")
+        {
+            sendAll(clientSocket, handleDeleteFaculty(facultyId, allHeaders));
+        }
+        else if (method == "PUT")
+        {
+            sendAll(clientSocket, handleUpdateFaculty(facultyId, body, allHeaders));
+        }
+        else
+        {
+            sendAll(clientSocket, handleGetFaculty(facultyId));
+        }
     }
     else if (path == "/")
     {
