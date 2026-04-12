@@ -255,6 +255,8 @@ string handleListFaculty(const string &search = "")
 map<string, string> parseJSON(const string &json)
 {
     map<string, string> result;
+    cout << "PARSING JSON: " << json << endl;
+    
     size_t pos = 0;
     while ((pos = json.find("\"", pos)) != string::npos)
     {
@@ -280,6 +282,7 @@ map<string, string> parseJSON(const string &json)
 
         string value = json.substr(valueStart, valueEnd - valueStart);
         result[key] = value;
+        cout << "KEY: " << key << " => VALUE: " << value << endl;
 
         pos = valueEnd + 1;
     }
@@ -288,15 +291,21 @@ map<string, string> parseJSON(const string &json)
 
 string handleLogin(const string &body)
 {
+    cout << "LOGIN REQUEST BODY: " << body << endl;
+    
     auto data = parseJSON(body);
     string username = data["username"];
     string password = data["password"];
+    
+    cout << "LOGIN ATTEMPT: username=" << username << " password=" << password << endl;
 
     auto faculty = loadData();
     for (const auto &f : faculty)
     {
+        cout << "CHECKING: " << f.id << " / " << f.pass << endl;
         if (f.id == username && f.pass == password)
         {
+            cout << "LOGIN SUCCESS for " << username << endl;
             string sessionId = "session_" + to_string(rand() % 100000);
             sessions[sessionId] = {f.role, f.id};
 
@@ -308,6 +317,7 @@ string handleLogin(const string &body)
         }
     }
 
+    cout << "LOGIN FAILED" << endl;
     return httpResponse(401, "application/json", R"({"status":"error","message":"Invalid credentials"})");
 }
 
