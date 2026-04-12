@@ -240,6 +240,7 @@ string handleListFaculty(const string &search = "")
     string lower_search = toLower(search);
     string json = R"({"status":"success","faculty":[)";
     bool first = true;
+    int count = 0;
     for (const auto &f : faculty)
     {
         string combinedLower = toLower(f.name + " " + f.dept + " " + f.spec);
@@ -252,9 +253,10 @@ string handleListFaculty(const string &search = "")
             json += R"(","mobile":")" + jsonEscape(f.mobile) + R"(","email":")" + jsonEscape(f.email);
             json += R"(","subject":")" + jsonEscape(f.spec) + R"("})";
             first = false;
+            count++;
         }
     }
-    json += R"(],"total":)" + to_string(first ? 0 : 1) + "}";
+    json += R"(],"total":)" + to_string(count) + "}";
     return httpResponse(200, "application/json", json);
 }
 
@@ -327,6 +329,93 @@ string handleAuthMe(const string &allHeaders)
     return httpResponse(401, "application/json", R"({"status":"error","message":"Session expired"})");
 }
 
+string handleUserProfile(const string &allHeaders)
+{
+    string sessionId;
+    size_t cookiePos = allHeaders.find("Cookie:");
+    if (cookiePos != string::npos)
+    {
+        size_t cookieEnd = allHeaders.find("\r\n", cookiePos);
+        string cookies = allHeaders.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
+        size_t sessionStart = cookies.find("sessionId=");
+        if (sessionStart != string::npos)
+        {
+            sessionStart += 10;
+            size_t sessionEnd = cookies.find(";", sessionStart);
+            if (sessionEnd == string::npos)
+                sessionEnd = cookies.length();
+            sessionId = cookies.substr(sessionStart, sessionEnd - sessionStart);
+            sessionId = trim(sessionId);
+        }
+    }
+    if (sessionId.empty() || sessions.find(sessionId) == sessions.end())
+    {
+        return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
+    }
+    auto sess = sessions[sessionId];
+    auto faculty = loadData();
+    for (const auto &f : faculty)
+    {
+        if (f.id == sess.userId)
+        {
+            string response = R"({"status":"success","id":")" + jsonEscape(f.id) + R"(","name":")" + jsonEscape(f.name) +
+                              R"(","email":")" + jsonEscape(f.email) + R"(","mobile":")" + jsonEscape(f.mobile) +
+                              R"(","department":")" + jsonEscape(f.dept) + R"(","designation":")" + jsonEscape(f.desig) +
+                              R"(","subject":")" + jsonEscape(f.spec) + R"(","role":")" + jsonEscape(f.role) + R"("})";
+            return httpResponse(200, "application/json", response);
+        }
+    }
+    return httpResponse(404, "application/json", R"({"status":"error","message":"User not found"})");
+}
+
+string handleAddFaculty(const string &body, const string &allHeaders)
+{
+    string sessionId;
+    size_t cookiePos = allHeaders.find("Cookie:");
+    if (cookiePos != string::npos)
+    {
+        size_t cookieEnd = allHeaders.find("\r\n", cookiePos);
+        string cookies = allHeaders.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
+        size_t sessionStart = cookies.find("sessionId=");
+        if (sessionStart != string::npos)
+        {
+            sessionStart += 10;
+            size_t sessionEnd = cookies.find(";", sessionStart);
+            if (sessionEnd == string::npos)
+                sessionEnd = cookies.length();
+            sessionId = cookies.substr(sessionStart, sessionEnd - sessionStart);
+            sessionId = trim(sessionId);
+        }
+    }
+    if (sessionId.empty() || sessions.find(sessionId) == sessions.end())
+    {
+        return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
+    }
+    auto data = parseJSON(body);
+    Faculty newFaculty;
+    newFaculty.id = data["id"];
+    newFaculty.name = data["name"];
+    newFaculty.email = data["email"];
+    newFaculty.mobile = data["mobile"];
+    newFaculty.dept = data["department"];
+    newFaculty.desig = data["designation"];
+    newFaculty.spec = data["subject"];
+    newFaculty.pass = data.count("password") ? data["password"] : "default123";
+    newFaculty.role = "faculty";
+    string line = newFaculty.id + "," + newFaculty.name + "," + newFaculty.dept + "," + newFaculty.desig + "," + newFaculty.mobile + "," + newFaculty.email + "," + newFaculty.spec + "," + newFaculty.pass + "," + newFaculty.role;
+    ofstream userFile("users.txt", ios::app);
+    if (userFile)
+    {
+        userFile << "\n"
+                 << line;
+        userFile.close();
+        cout << "FACULTY ADDED: " << newFaculty.id << " " << newFaculty.name << endl;
+        string response = R"({"status":"success","message":"Faculty added successfully","faculty":{"id":")" + jsonEscape(newFaculty.id) + R"(","name":")" + jsonEscape(newFaculty.name) + R"("}})";
+        return httpResponse(201, "application/json", response);
+    }
+    return httpResponse(500, "application/json", R"({"status":"error","message":"Failed to add faculty"})");
+}
+
 void handleRequest(int clientSocket, const string &requestLine, const string &allHeaders, const string &body);
 
 void handleClient(int clientSocket)
@@ -374,7 +463,16 @@ void handleClient(int clientSocket)
 
 string handleStatsEndpoint()
 {
-    string json = R"({"totalFaculty":150,"departments":4,"students":2500,"recentlyAdded":15})";
+    auto faculty = loadData();
+    int totalFaculty = 0, totalStudents = 0;
+    for (const auto &f : faculty)
+    {
+        if (f.role == "faculty")
+            totalFaculty++;
+        else if (f.role == "student")
+            totalStudents++;
+    }
+    string json = R"({"totalFaculty":)" + to_string(totalFaculty) + R"(,"departments":4,"students":)" + to_string(totalStudents) + R"(,"recentlyAdded":15})";
     return httpResponse(200, "application/json", json);
 }
 
@@ -387,7 +485,8 @@ string handleDepartmentsEndpoint()
 void handleRequest(int clientSocket, const string &requestLine, const string &allHeaders, const string &body)
 {
     string path = parseRequestPath(requestLine);
-    cout << "REQUEST: " << path << endl;
+    string method = requestLine.substr(0, requestLine.find(" "));
+    cout << "REQUEST: " << method << " " << path << endl;
     if (path == "/api/auth/login")
     {
         sendAll(clientSocket, handleLogin(body));
@@ -412,6 +511,14 @@ void handleRequest(int clientSocket, const string &requestLine, const string &al
     else if (path == "/api/stats/departments")
     {
         sendAll(clientSocket, handleDepartmentsEndpoint());
+    }
+    else if (path == "/api/profile")
+    {
+        sendAll(clientSocket, handleUserProfile(allHeaders));
+    }
+    else if (path == "/api/faculty" && method == "POST")
+    {
+        sendAll(clientSocket, handleAddFaculty(body, allHeaders));
     }
     else if (path == "/")
     {
