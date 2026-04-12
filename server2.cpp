@@ -255,7 +255,14 @@ void handleRequest(int clientSocket, const string &requestLine, const string &bo
 {
     string path = parseRequestPath(requestLine);
 
-    if (path == "/" || path == "/index.html")
+    // API endpoints
+    if (path == "/api/faculty/list")
+    {
+        string search = getQueryParam(requestLine, "search");
+        sendAll(clientSocket, handleListFaculty(search));
+    }
+    // Handle root or any HTML file request
+    else if (path == "/")
     {
         ifstream file("public/index.html", ios::binary);
         if (file)
@@ -268,22 +275,41 @@ void handleRequest(int clientSocket, const string &requestLine, const string &bo
             sendAll(clientSocket, httpResponse(404, "text/plain", "Not Found"));
         }
     }
-    else if (path == "/api/faculty/list")
+    // Handle .html files
+    else if (path.find(".html") != string::npos)
     {
-        string search = getQueryParam(requestLine, "search");
-        sendAll(clientSocket, handleListFaculty(search));
-    }
-    else if (path.find("/public/") == 0)
-    {
-        string filePath = "." + path;
+        string filePath = "public" + path;
         ifstream file(filePath, ios::binary);
         if (file)
         {
             string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-            string contentType = path.find(".css") != string::npos ? "text/css" : path.find(".js") != string::npos ? "application/javascript"
-                                                                              : path.find(".png") != string::npos  ? "image/png"
-                                                                                                                   : "text/html";
+            sendAll(clientSocket, httpResponse(200, "text/html", content));
+        }
+        else
+        {
+            sendAll(clientSocket, httpResponse(404, "application/json", R"({"error":"File not found"})"));
+        }
+    }
+    // Handle static files (css, js, images, etc)
+    else if (path.find(".css") != string::npos || path.find(".js") != string::npos || 
+             path.find(".png") != string::npos || path.find(".jpg") != string::npos || 
+             path.find(".jpeg") != string::npos || path.find(".txt") != string::npos)
+    {
+        string filePath = "public" + path;
+        ifstream file(filePath, ios::binary);
+        if (file)
+        {
+            string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
+            string contentType = path.find(".css") != string::npos ? "text/css" : 
+                                 path.find(".js") != string::npos ? "application/javascript" :
+                                 path.find(".png") != string::npos ? "image/png" :
+                                 path.find(".jpg") != string::npos || path.find(".jpeg") != string::npos ? "image/jpeg" :
+                                 "text/plain";
             sendAll(clientSocket, httpResponse(200, contentType, content));
+        }
+        else
+        {
+            sendAll(clientSocket, httpResponse(404, "application/json", R"({"error":"File not found"})"));
         }
     }
     else
