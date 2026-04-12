@@ -334,14 +334,31 @@ string handleLogin(const string &body)
             cout << "LOGIN SUCCESS for " << username << endl;
             string sessionId = "session_" + to_string(rand() % 1000000);
             sessions[sessionId] = {f.role, f.id};
-            
-            string response = R"({"status":"success","sessionId":")" + sessionId + 
-                            R"(","userId":")" + jsonEscape(f.id) +
-                            R"(","name":")" + jsonEscape(f.name) +
-                            R"(","role":")" + jsonEscape(f.role) + R"("})";
-            
+
+            string response = R"({"status":"success","sessionId":")" + sessionId +
+                              R"(","userId":")" + jsonEscape(f.id) +
+                              R"(","name":")" + jsonEscape(f.name) +
+                              R"(","role":")" + jsonEscape(f.role) + R"("})";
+
             string setCookie = "sessionId=" + sessionId;
             return httpResponse(200, "application/json", response, setCookie);
+        }
+    }
+
+    cout << "LOGIN FAILED" << endl;
+    return httpResponse(401, "application/json", R"({"status":"error","message":"Invalid credentials"})");
+}
+
+string handleAuthMe(const string &requestLine)
+{
+    cout << "AUTH ME REQUEST:\n"
+         << requestLine << endl;
+
+    string sessionId;
+
+    // Try 1: Check Cookie header (sessionId=xxx)
+    size_t cookiePos = requestLine.find("Cookie:");
+    if (cookiePos != string::npos)
     {
         size_t cookieEnd = requestLine.find("\r\n", cookiePos);
         string cookies = requestLine.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
