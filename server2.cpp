@@ -275,7 +275,10 @@ string handleLogin(const string &body)
         {
             cout << "LOGIN SUCCESS for " << username << endl;
             string sessionId = "session_" + to_string(rand() % 1000000);
-            sessions[sessionId] = {f.role, f.id};
+            {
+                lock_guard<mutex> lock(sessionsMutex);
+                sessions[sessionId] = {f.role, f.id};
+            }
             string response = R"({"status":"success","sessionId":")" + sessionId +
                               R"(","userId":")" + jsonEscape(f.id) +
                               R"(","name":")" + jsonEscape(f.name) +
@@ -317,16 +320,49 @@ string handleAuthMe(const string &allHeaders)
         return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
     }
     cout << "CHECKING SESSION: " << sessionId << endl;
-    if (sessions.find(sessionId) != sessions.end())
     {
-        auto sess = sessions[sessionId];
-        cout << "SESSION FOUND! User: " << sess.userId << " Role: " << sess.role << endl;
-        string response = R"({"status":"success","userId":")" + jsonEscape(sess.userId) +
-                          R"(","role":")" + jsonEscape(sess.role) + R"("})";
-        return httpResponse(200, "application/json", response);
+        lock_guard<mutex> lock(sessionsMutex);
+        if (sessions.find(sessionId) != sessions.end())
+        {
+            auto sess = sessions[sessionId];
+            cout << "SESSION FOUND! User: " << sess.userId << " Role: " << sess.role << endl;
+            string response = R"({"status":"success","userId":")" + jsonEscape(sess.userId) +
+                              R"(","role":")" + jsonEscape(sess.role) + R"("})";
+            return httpResponse(200, "application/json", response);
+        }
     }
     cout << "SESSION NOT FOUND" << endl;
     return httpResponse(401, "application/json", R"({"status":"error","message":"Session expired"})");
+}
+
+string handleLogout(const string &allHeaders)
+{
+    cout << "LOGOUT REQUEST" << endl;
+    string sessionId;
+    size_t cookiePos = allHeaders.find("Cookie:");
+    if (cookiePos != string::npos)
+    {
+        size_t cookieEnd = allHeaders.find("\r\n", cookiePos);
+        string cookies = allHeaders.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
+        size_t sessionStart = cookies.find("sessionId=");
+        if (sessionStart != string::npos)
+        {
+            sessionStart += 10;
+            size_t sessionEnd = cookies.find(";", sessionStart);
+            if (sessionEnd == string::npos)
+                sessionEnd = cookies.length();
+            sessionId = cookies.substr(sessionStart, sessionEnd - sessionStart);
+            sessionId = trim(sessionId);
+        }
+    }
+    if (!sessionId.empty())
+    {
+        lock_guard<mutex> lock(sessionsMutex);
+        sessions.erase(sessionId);
+        cout << "SESSION CLEARED: " << sessionId << endl;
+    }
+    string setCookie = "sessionId=; Max-Age=0";
+    return httpResponse(200, "application/json", R"({"status":"success","message":"Logged out successfully"})", setCookie);
 }
 
 string handleUserProfile(const string &allHeaders)
@@ -494,6 +530,10 @@ void handleRequest(int clientSocket, const string &requestLine, const string &al
     else if (path == "/api/auth/me")
     {
         sendAll(clientSocket, handleAuthMe(allHeaders));
+    }
+    else if (path == "/api/auth/logout")
+    {
+        sendAll(clientSocket, handleLogout(allHeaders));
     }
     else if (path == "/api/faculty/list")
     {
