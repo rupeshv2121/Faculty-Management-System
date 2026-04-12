@@ -349,19 +349,19 @@ string handleLogin(const string &body)
     return httpResponse(401, "application/json", R"({"status":"error","message":"Invalid credentials"})");
 }
 
-string handleAuthMe(const string &requestLine)
+string handleAuthMe(const string &allHeaders)
 {
-    cout << "AUTH ME REQUEST:\n"
-         << requestLine << endl;
+    cout << "AUTH ME REQUEST HEADERS:\n"
+         << allHeaders << endl;
 
     string sessionId;
 
     // Try 1: Check Cookie header (sessionId=xxx)
-    size_t cookiePos = requestLine.find("Cookie:");
+    size_t cookiePos = allHeaders.find("Cookie:");
     if (cookiePos != string::npos)
     {
-        size_t cookieEnd = requestLine.find("\r\n", cookiePos);
-        string cookies = requestLine.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
+        size_t cookieEnd = allHeaders.find("\r\n", cookiePos);
+        string cookies = allHeaders.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
         cout << "COOKIES: " << cookies << endl;
 
         size_t sessionStart = cookies.find("sessionId=");
@@ -380,11 +380,11 @@ string handleAuthMe(const string &requestLine)
     // Try 2: Check Authorization header (Bearer xxx)
     if (sessionId.empty())
     {
-        size_t authPos = requestLine.find("Authorization:");
+        size_t authPos = allHeaders.find("Authorization:");
         if (authPos != string::npos)
         {
-            size_t authEnd = requestLine.find("\r\n", authPos);
-            string auth = requestLine.substr(authPos + 14, authEnd - authPos - 14);
+            size_t authEnd = allHeaders.find("\r\n", authPos);
+            string auth = allHeaders.substr(authPos + 14, authEnd - authPos - 14);
             auth = trim(auth);
 
             if (auth.find("Bearer ") == 0)
@@ -398,11 +398,11 @@ string handleAuthMe(const string &requestLine)
     // Try 3: Check X-Session-ID header
     if (sessionId.empty())
     {
-        size_t xSessionPos = requestLine.find("X-Session-ID:");
+        size_t xSessionPos = allHeaders.find("X-Session-ID:");
         if (xSessionPos != string::npos)
         {
-            size_t xSessionEnd = requestLine.find("\r\n", xSessionPos);
-            sessionId = requestLine.substr(xSessionPos + 13, xSessionEnd - xSessionPos - 13);
+            size_t xSessionEnd = allHeaders.find("\r\n", xSessionPos);
+            sessionId = allHeaders.substr(xSessionPos + 13, xSessionEnd - xSessionPos - 13);
             sessionId = trim(sessionId);
             cout << "SESSION FROM X-SESSION-ID: " << sessionId << endl;
         }
@@ -430,7 +430,7 @@ string handleAuthMe(const string &requestLine)
     return httpResponse(401, "application/json", R"({"status":"error","message":"Session expired"})");
 }
 
-void handleRequest(int clientSocket, const string &requestLine, const string &body)
+void handleRequest(int clientSocket, const string &requestLine, const string &allHeaders, const string &body)
 {
     string path = parseRequestPath(requestLine);
 
@@ -444,7 +444,7 @@ void handleRequest(int clientSocket, const string &requestLine, const string &bo
     }
     else if (path == "/api/auth/me")
     {
-        sendAll(clientSocket, handleAuthMe(requestLine));
+        sendAll(clientSocket, handleAuthMe(allHeaders));
     }
     else if (path == "/api/faculty/list")
     {
@@ -564,54 +564,13 @@ void handleClient(int clientSocket)
             {
                 size_t firstNewline = allData.find("\r\n");
                 string requestLine = allData.substr(0, firstNewline);
+                string allHeaders = allData.substr(0, headerEnd);  // Include all headers
                 string body = (contentLength > 0) ? allData.substr(bodyStart, contentLength) : "";
 
                 cout << "REQUEST LINE: " << requestLine << endl;
                 cout << "BODY: " << body << endl;
-
-                handleRequest(clientSocket, requestLine, body);
-                break;
-            }
-        }
-    }
-
-    close(clientSocket);
-}
-
-int main()
-{
-    // Get port from environment variable
-    const char *portEnv = getenv("PORT");
-    if (portEnv)
-    {
-        PORT = stoi(portEnv);
-    }
-
-    int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverSocket < 0)
-    {
-        cerr << "Error creating socket" << endl;
-        return 1;
-    }
-
-    int opt = 1;
-    if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
-    {
-        cerr << "Error setting socket options" << endl;
-        close(serverSocket);
-        return 1;
-    }
-
-    sockaddr_in serverAddr;
-    memset(&serverAddr, 0, sizeof(serverAddr));
-    serverAddr.sin_family = AF_INET;
-    serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
-    serverAddr.sin_port = htons(PORT);
-
-    if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
-    {
-        cerr << "Error binding socket" << endl;
-        close(serverSocket);
+                
+                handleRequest(clientSocket, requestLine, allHeaders, body);
         return 1;
     }
 
