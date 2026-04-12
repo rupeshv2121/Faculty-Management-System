@@ -343,35 +343,81 @@ string handleLogin(const string &body)
 
 string handleAuthMe(const string &requestLine)
 {
-    // Extract session from cookie or header
+    cout << "AUTH ME REQUEST:\n" << requestLine << endl;
+    
+    string sessionId;
+    
+    // Try 1: Check Cookie header (sessionId=xxx)
     size_t cookiePos = requestLine.find("Cookie:");
-    if (cookiePos == string::npos)
+    if (cookiePos != string::npos)
     {
+        size_t cookieEnd = requestLine.find("\r\n", cookiePos);
+        string cookies = requestLine.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
+        cout << "COOKIES: " << cookies << endl;
+        
+        size_t sessionStart = cookies.find("sessionId=");
+        if (sessionStart != string::npos)
+        {
+            sessionStart += 10;
+            size_t sessionEnd = cookies.find(";", sessionStart);
+            if (sessionEnd == string::npos)
+                sessionEnd = cookies.length();
+            sessionId = cookies.substr(sessionStart, sessionEnd - sessionStart);
+            sessionId = trim(sessionId);
+            cout << "SESSION FROM COOKIE: " << sessionId << endl;
+        }
+    }
+    
+    // Try 2: Check Authorization header (Bearer xxx)
+    if (sessionId.empty())
+    {
+        size_t authPos = requestLine.find("Authorization:");
+        if (authPos != string::npos)
+        {
+            size_t authEnd = requestLine.find("\r\n", authPos);
+            string auth = requestLine.substr(authPos + 14, authEnd - authPos - 14);
+            auth = trim(auth);
+            
+            if (auth.find("Bearer ") == 0)
+            {
+                sessionId = auth.substr(7);
+                cout << "SESSION FROM AUTHORIZATION: " << sessionId << endl;
+            }
+        }
+    }
+    
+    // Try 3: Check X-Session-ID header
+    if (sessionId.empty())
+    {
+        size_t xSessionPos = requestLine.find("X-Session-ID:");
+        if (xSessionPos != string::npos)
+        {
+            size_t xSessionEnd = requestLine.find("\r\n", xSessionPos);
+            sessionId = requestLine.substr(xSessionPos + 13, xSessionEnd - xSessionPos - 13);
+            sessionId = trim(sessionId);
+            cout << "SESSION FROM X-SESSION-ID: " << sessionId << endl;
+        }
+    }
+    
+    if (sessionId.empty())
+    {
+        cout << "NO SESSION ID FOUND" << endl;
         return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
     }
-
-    string cookie = requestLine.substr(cookiePos + 7);
-    size_t sessionStart = cookie.find("sessionId=");
-    if (sessionStart == string::npos)
-    {
-        return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
-    }
-
-    sessionStart += 10;
-    size_t sessionEnd = cookie.find(";", sessionStart);
-    if (sessionEnd == string::npos)
-        sessionEnd = cookie.find("\r", sessionStart);
-
-    string sessionId = cookie.substr(sessionStart, sessionEnd - sessionStart);
-
+    
+    cout << "CHECKING SESSION: " << sessionId << endl;
+    cout << "ACTIVE SESSIONS: " << sessions.size() << endl;
+    
     if (sessions.find(sessionId) != sessions.end())
     {
         auto sess = sessions[sessionId];
+        cout << "SESSION FOUND! User: " << sess.userId << " Role: " << sess.role << endl;
         string response = R"({"status":"success","userId":")" + jsonEscape(sess.userId) +
                           R"(","role":")" + jsonEscape(sess.role) + R"("})";
         return httpResponse(200, "application/json", response);
     }
 
+    cout << "SESSION NOT FOUND" << endl;
     return httpResponse(401, "application/json", R"({"status":"error","message":"Session expired"})");
 }
 
