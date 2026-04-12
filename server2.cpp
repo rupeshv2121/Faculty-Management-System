@@ -114,13 +114,19 @@ string reasonPhrase(int status)
     }
 }
 
-string httpResponse(int status, const string &contentType, const string &body)
+string httpResponse(int status, const string &contentType, const string &body, const string &setCookie = "")
 {
     ostringstream oss;
     oss << "HTTP/1.1 " << status << " " << reasonPhrase(status) << "\r\n";
     oss << "Content-Type: " << contentType << "\r\n";
     oss << "Content-Length: " << body.size() << "\r\n";
     oss << "Access-Control-Allow-Origin: *\r\n";
+    oss << "Access-Control-Allow-Credentials: true\r\n";
+    oss << "Access-Control-Allow-Headers: Content-Type, Authorization, X-Session-ID\r\n";
+    if (!setCookie.empty())
+    {
+        oss << "Set-Cookie: " << setCookie << "; Path=/; HttpOnly; SameSite=Lax\r\n";
+    }
     oss << "Connection: close\r\n\r\n";
     oss << body;
     return oss.str();
@@ -199,13 +205,13 @@ vector<Faculty> loadData()
         vector<string> fields;
         stringstream ss(line);
         string field;
-        
+
         while (getline(ss, field, ','))
         {
             field = trim(field);
             fields.push_back(field);
         }
-        
+
         if (fields.size() >= 9)
         {
             f.id = fields[0];
@@ -326,35 +332,21 @@ string handleLogin(const string &body)
         if (f.id == username && f.pass == password)
         {
             cout << "LOGIN SUCCESS for " << username << endl;
-            string sessionId = "session_" + to_string(rand() % 100000);
+            string sessionId = "session_" + to_string(rand() % 1000000);
             sessions[sessionId] = {f.role, f.id};
-
-            string response = R"({"status":"success","sessionId":")" + sessionId +
-                              R"(","userId":")" + jsonEscape(f.id) +
-                              R"(","name":")" + jsonEscape(f.name) +
-                              R"(","role":")" + jsonEscape(f.role) + R"("})";
-            return httpResponse(200, "application/json", response);
-        }
-    }
-
-    cout << "LOGIN FAILED" << endl;
-    return httpResponse(401, "application/json", R"({"status":"error","message":"Invalid credentials"})");
-}
-
-string handleAuthMe(const string &requestLine)
-{
-    cout << "AUTH ME REQUEST:\n" << requestLine << endl;
-    
-    string sessionId;
-    
-    // Try 1: Check Cookie header (sessionId=xxx)
-    size_t cookiePos = requestLine.find("Cookie:");
-    if (cookiePos != string::npos)
+            
+            string response = R"({"status":"success","sessionId":")" + sessionId + 
+                            R"(","userId":")" + jsonEscape(f.id) +
+                            R"(","name":")" + jsonEscape(f.name) +
+                            R"(","role":")" + jsonEscape(f.role) + R"("})";
+            
+            string setCookie = "sessionId=" + sessionId;
+            return httpResponse(200, "application/json", response, setCookie);
     {
         size_t cookieEnd = requestLine.find("\r\n", cookiePos);
         string cookies = requestLine.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
         cout << "COOKIES: " << cookies << endl;
-        
+
         size_t sessionStart = cookies.find("sessionId=");
         if (sessionStart != string::npos)
         {
@@ -367,7 +359,7 @@ string handleAuthMe(const string &requestLine)
             cout << "SESSION FROM COOKIE: " << sessionId << endl;
         }
     }
-    
+
     // Try 2: Check Authorization header (Bearer xxx)
     if (sessionId.empty())
     {
@@ -377,7 +369,7 @@ string handleAuthMe(const string &requestLine)
             size_t authEnd = requestLine.find("\r\n", authPos);
             string auth = requestLine.substr(authPos + 14, authEnd - authPos - 14);
             auth = trim(auth);
-            
+
             if (auth.find("Bearer ") == 0)
             {
                 sessionId = auth.substr(7);
@@ -385,7 +377,7 @@ string handleAuthMe(const string &requestLine)
             }
         }
     }
-    
+
     // Try 3: Check X-Session-ID header
     if (sessionId.empty())
     {
@@ -398,16 +390,16 @@ string handleAuthMe(const string &requestLine)
             cout << "SESSION FROM X-SESSION-ID: " << sessionId << endl;
         }
     }
-    
+
     if (sessionId.empty())
     {
         cout << "NO SESSION ID FOUND" << endl;
         return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
     }
-    
+
     cout << "CHECKING SESSION: " << sessionId << endl;
     cout << "ACTIVE SESSIONS: " << sessions.size() << endl;
-    
+
     if (sessions.find(sessionId) != sessions.end())
     {
         auto sess = sessions[sessionId];
@@ -559,7 +551,7 @@ void handleClient(int clientSocket)
 
                 cout << "REQUEST LINE: " << requestLine << endl;
                 cout << "BODY: " << body << endl;
-                
+
                 handleRequest(clientSocket, requestLine, body);
                 break;
             }
