@@ -573,6 +573,11 @@ string handleUpdateFaculty(const string &facultyId, const string &body, const st
         return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
     }
     auto data = parseJSON(body);
+    cout << "UPDATE REQUEST FOR: " << facultyId << " with " << data.size() << " fields" << endl;
+    for (const auto &kv : data)
+    {
+        cout << "UPDATE FIELD: " << kv.first << " = " << kv.second << endl;
+    }
     auto allFaculty = loadData();
     bool found = false;
     for (auto &f : allFaculty)
@@ -580,17 +585,21 @@ string handleUpdateFaculty(const string &facultyId, const string &body, const st
         if (f.id == facultyId)
         {
             found = true;
-            if (!data["name"].empty())
+            cout << "FOUND FACULTY TO UPDATE: " << f.name << endl;
+            if (data.count("name") && !data["name"].empty())
+            {
+                cout << "UPDATING NAME FROM " << f.name << " TO " << data["name"] << endl;
                 f.name = data["name"];
-            if (!data["email"].empty())
+            }
+            if (data.count("email") && !data["email"].empty())
                 f.email = data["email"];
-            if (!data["mobile"].empty())
+            if (data.count("mobile") && !data["mobile"].empty())
                 f.mobile = data["mobile"];
-            if (!data["department"].empty())
+            if (data.count("department") && !data["department"].empty())
                 f.dept = data["department"];
-            if (!data["designation"].empty())
+            if (data.count("designation") && !data["designation"].empty())
                 f.desig = data["designation"];
-            if (!data["subject"].empty())
+            if (data.count("subject") && !data["subject"].empty())
                 f.spec = data["subject"];
             break;
         }
@@ -599,6 +608,7 @@ string handleUpdateFaculty(const string &facultyId, const string &body, const st
     {
         return httpResponse(404, "application/json", R"({"status":"error","message":"Faculty not found"})");
     }
+    cout << "UPDATING FACULTY: " << facultyId << " with " << allFaculty.size() << " total records" << endl;
     ofstream userFile("users.txt", ios::trunc);
     if (userFile)
     {
