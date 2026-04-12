@@ -181,7 +181,7 @@ vector<Faculty> loadData()
 {
     vector<Faculty> faculty;
     string line;
-    ifstream file("../users.txt", ios::in);
+    ifstream file("users.txt", ios::in);
     if (!file.is_open())
     {
         cerr << "Warning: Could not open users.txt" << endl;
@@ -257,7 +257,7 @@ void handleRequest(int clientSocket, const string &requestLine, const string &bo
 
     if (path == "/" || path == "/index.html")
     {
-        ifstream file("../public/index.html", ios::binary);
+        ifstream file("public/index.html", ios::binary);
         if (file)
         {
             string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
@@ -275,7 +275,7 @@ void handleRequest(int clientSocket, const string &requestLine, const string &bo
     }
     else if (path.find("/public/") == 0)
     {
-        string filePath = ".." + path;
+        string filePath = "." + path;
         ifstream file(filePath, ios::binary);
         if (file)
         {
