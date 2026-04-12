@@ -254,6 +254,9 @@ string handleListFaculty(const string &search = "")
 void handleRequest(int clientSocket, const string &requestLine, const string &body)
 {
     string path = parseRequestPath(requestLine);
+    
+    // Debug: Log all requests
+    cout << "REQUEST: " << path << endl;
 
     // API endpoints
     if (path == "/api/faculty/list")
@@ -291,24 +294,26 @@ void handleRequest(int clientSocket, const string &requestLine, const string &bo
         }
     }
     // Handle static files (css, js, images, etc)
-    else if (path.find(".css") != string::npos || path.find(".js") != string::npos || 
-             path.find(".png") != string::npos || path.find(".jpg") != string::npos || 
+    else if (path.find(".css") != string::npos || path.find(".js") != string::npos ||
+             path.find(".png") != string::npos || path.find(".jpg") != string::npos ||
              path.find(".jpeg") != string::npos || path.find(".txt") != string::npos)
     {
         string filePath = "public" + path;
+        cout << "LOADING FILE: " << filePath << endl;
         ifstream file(filePath, ios::binary);
         if (file)
         {
+            cout << "FILE FOUND" << endl;
             string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-            string contentType = path.find(".css") != string::npos ? "text/css" : 
-                                 path.find(".js") != string::npos ? "application/javascript" :
-                                 path.find(".png") != string::npos ? "image/png" :
-                                 path.find(".jpg") != string::npos || path.find(".jpeg") != string::npos ? "image/jpeg" :
-                                 "text/plain";
+            string contentType = path.find(".css") != string::npos ? "text/css" : path.find(".js") != string::npos                                      ? "application/javascript"
+                                                                              : path.find(".png") != string::npos                                       ? "image/png"
+                                                                              : path.find(".jpg") != string::npos || path.find(".jpeg") != string::npos ? "image/jpeg"
+                                                                                                                                                        : "text/plain";
             sendAll(clientSocket, httpResponse(200, contentType, content));
         }
         else
         {
+            cout << "FILE NOT FOUND: " << filePath << endl;
             sendAll(clientSocket, httpResponse(404, "application/json", R"({"error":"File not found"})"));
         }
     }
