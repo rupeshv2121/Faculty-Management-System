@@ -19,15 +19,15 @@ async function renderStudentDashboard(user) {
       <!-- Search (prominent) -->
       <div class="card" style="margin-bottom:24px;border-left:4px solid var(--gold);background:linear-gradient(135deg,#fff 80%,#fdf6ea);">
         <div style="font-size:15px;font-weight:700;color:var(--navy);margin-bottom:10px;">Search Faculty</div>
-        <div style="display:flex;gap:10px;">
-          <input class="search-input" id="studentSearch" style="max-width:100%;flex:1;" placeholder="Search by name, department, or subject..." onkeydown="if(event.key==='Enter')searchStudentFaculty()">
-          <button class="btn btn-primary" onclick="searchStudentFaculty()">Search</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+          <input class="search-input" id="studentSearch" style="flex:1;min-width:200px;" placeholder="Search by name, department, or subject..." onkeydown="if(event.key==='Enter')searchStudentFaculty()">
+          <button class="btn btn-primary" style="white-space:nowrap;" onclick="searchStudentFaculty()">Search</button>
         </div>
         <div id="searchResults" style="margin-top:14px;"></div>
       </div>
 
       <!-- Stats -->
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:24px;" class="stat-grid">
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:16px;margin-bottom:24px;" class="stat-grid">
         <div class="stat-card" style="border-top:3px solid var(--navy);">
           <div class="label">Total Faculty</div>
           <div class="value">${stats.totalFaculty}</div>
@@ -43,7 +43,7 @@ async function renderStudentDashboard(user) {
       <!-- Browse by department -->
       <div style="margin-bottom:16px;">
         <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:12px;">Browse by Department</div>
-        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:12px;margin-bottom:24px;">
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:12px;margin-bottom:24px;">
           ${deptData.departments
         .map(d => `
             <a href="faculty.html?search=${encodeURIComponent(d.name)}" class="dept-card">
@@ -67,18 +67,20 @@ async function renderStudentDashboard(user) {
             <thead><tr><th>Name</th><th>Department</th><th>Subject</th><th>Office Hours</th><th>Email</th><th></th></tr></thead>
             <tbody>
               ${facultyData.faculty
+        .slice(0, 5)
         .map(f => `<tr>
-                <td><strong>${esc(f.name)}</strong></td>
-                <td><span class="badge badge-dept">${esc(f.department)}</span></td>
-                <td>${esc(f.subject)}</td>
-                <td style="font-size:12px;color:var(--muted);">${esc(f.officeHours)}</td>
-                <td><a href="mailto:${esc(f.email)}" style="color:var(--navy);font-size:13px;">${esc(f.email)}</a></td>
-                <td><a href="faculty-detail.html?id=${f.id}" class="btn btn-outline btn-sm">View</a></td>
+                <td data-label="Name"><strong>${esc(f.name)}</strong></td>
+                <td data-label="Department"><span class="badge badge-dept">${esc(f.department)}</span></td>
+                <td data-label="Subject">${esc(f.subject)}</td>
+                <td data-label="Office Hours" style="font-size:12px;color:var(--muted);">${esc(f.officeHours)}</td>
+                <td data-label="Email"><a href="mailto:${esc(f.email)}" style="color:var(--navy);font-size:13px;">${esc(f.email)}</a></td>
+                <td data-label="Actions"><a href="faculty-detail.html?id=${f.id}" class="btn btn-outline btn-sm">View</a></td>
               </tr>`)
         .join("")}
             </tbody>
           </table>
         </div>
+        ${facultyData.total > 5 ? `<div style="padding:14px 20px;border-top:1px solid var(--border);text-align:center;background:var(--bg);border-radius:0 0 8px 8px;"><a href="faculty.html" class="btn btn-primary" style="margin:0;">View All ${facultyData.total} Faculty Members</a></div>` : ''}
       </div>
     `;
   } catch (err) {

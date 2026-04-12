@@ -90,21 +90,66 @@ async function doLogout() {
 function setupHamburger() {
     const hamburger = document.getElementById("hamburger");
     const sidebar = document.querySelector(".sidebar");
-    if (hamburger && sidebar) {
-        // Remove any existing listeners
-        hamburger.onclick = null;
-        hamburger.addEventListener("click", (e) => {
-            e.stopPropagation();
+    const appShell = document.querySelector(".app-shell");
+
+    if (!hamburger || !sidebar || !appShell) {
+        console.warn("Hamburger setup: Missing required elements");
+        return;
+    }
+
+    // Check if already set up (avoid duplicate listeners)
+    if (hamburger.dataset.setupComplete === "true") {
+        return;
+    }
+
+    hamburger.dataset.setupComplete = "true";
+
+    hamburger.addEventListener("click", function (e) {
+        e.stopPropagation();
+        const isDesktop = window.innerWidth > 768;
+        if (isDesktop) {
+            // Desktop: Toggle collapsed state
+            sidebar.classList.toggle("collapsed");
+            appShell.classList.toggle("sidebar-collapsed");
+            // Persist preference
+            const isCollapsed = sidebar.classList.contains("collapsed");
+            localStorage.setItem("sidebarCollapsed", isCollapsed);
+        } else {
+            // Mobile: Toggle open state
             sidebar.classList.toggle("open");
-        });
+        }
+    });
+
+    // Restore collapsed state on desktop
+    if (window.innerWidth > 768) {
+        const isCollapsed = localStorage.getItem("sidebarCollapsed") === "true";
+        if (isCollapsed) {
+            sidebar.classList.add("collapsed");
+            appShell.classList.add("sidebar-collapsed");
+        }
     }
 }
 
-// Also close sidebar when clicking outside
+// Also close sidebar when clicking outside (mobile only)
 document.addEventListener("click", () => {
     const sidebar = document.querySelector(".sidebar");
-    if (sidebar) {
+    if (sidebar && window.innerWidth <= 768) {
         sidebar.classList.remove("open");
+    }
+});
+
+// Handle window resize
+window.addEventListener("resize", () => {
+    const sidebar = document.querySelector(".sidebar");
+    const appShell = document.querySelector(".app-shell");
+    if (sidebar && appShell) {
+        if (window.innerWidth <= 768) {
+            // Remove collapsed on mobile, use open instead
+            if (sidebar.classList.contains("collapsed")) {
+                sidebar.classList.remove("collapsed");
+                appShell.classList.remove("sidebar-collapsed");
+            }
+        }
     }
 });
 

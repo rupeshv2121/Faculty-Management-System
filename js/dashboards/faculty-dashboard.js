@@ -3,17 +3,6 @@
 async function renderFacultyDashboard(user) {
   document.getElementById("topbarTitle").textContent = "My Dashboard";
 
-  // Add Edit My Info button before profile dropdown
-  const profileContainer = document.getElementById("profileDropdownContainer");
-  if (profileContainer && !document.getElementById("editInfoBtn")) {
-    const btn = document.createElement("a");
-    btn.id = "editInfoBtn";
-    btn.href = "profile.html";
-    btn.className = "btn btn-primary";
-    btn.textContent = "Edit My Info";
-    profileContainer.parentElement.insertBefore(btn, profileContainer);
-  }
-
   try {
     const [facultyData] = await Promise.all([api.listFaculty()]);
     let myRecord = null;
@@ -94,7 +83,7 @@ async function renderFacultyDashboard(user) {
           : `<div class="table-wrap"><table>
             <thead><tr><th>Name</th><th>Designation</th><th>Subject</th><th>Office Hours</th><th></th></tr></thead>
             <tbody>
-              ${colleagues.map(f => `<tr>
+              ${colleagues.slice(0, 5).map(f => `<tr>
                 <td><strong>${esc(f.name)}</strong></td>
                 <td>${esc(f.designation)}</td>
                 <td>${esc(f.subject)}</td>
@@ -102,7 +91,8 @@ async function renderFacultyDashboard(user) {
                 <td><a href="faculty-detail.html?id=${f.id}" class="btn btn-outline btn-sm">View</a></td>
               </tr>`).join("")}
             </tbody>
-          </table></div>`
+          </table></div>
+          ${colleagues.length > 5 ? `<div style="margin-top:12px;padding:12px;background:var(--light);border-radius:4px;font-size:13px;color:var(--muted);text-align:center;"><strong>${colleagues.length - 5}</strong> more colleagues in your department. <a href="faculty.html" style="color:var(--navy);font-weight:600;">View all faculty</a></div>` : ''}`
         }
         </div>
         `

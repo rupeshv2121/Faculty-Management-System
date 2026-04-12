@@ -1,8 +1,7 @@
 101,Rupesh,CSE,Professor,9999999999,r@mail.com,AI,admin123,admin
 102,Aman,CSE,Professor,12345467890,test@gmail.com,ML,fac123,student
-103,Neha,IT,Student,7777777777,n@mail.com,Data,n123,student
-111,mummy,CSE,Professor,8888884897,m@gmail.com,AI,mummy@123,faculty
-1,Prof. Izharuddin,Computer Engineering,Professor,9412545793,izharuddin@zhcet.ac.in,VLSI Design; Signal Processing; Signal Security,default123,faculty
+103,Neha,IT,Student,7777777777,n@mail.com,Data,neha@123,student
+1,Prof. Izharuddin,Computer Engineering,Professor,9412545786,izharuddin@zhcet.ac.in,VLSI Design; Signal Processing; Signal Security,default123,faculty
 2,Prof. Nesar Ahmad,Computer Engineering,Professor,,n.ahmad.ce@amu.ac.in,Artificial Intelligence; Applied Soft Computing; Digital Learning,default123,faculty
 3,Prof. Ash Mohammad Abbas,Computer Engineering,Professor,8791685906,am.abbas.ce@amu.ac.in,Computer Networks,default123,faculty
 4,Prof. M. M. Sufyan Beg,Computer Engineering,Professor,9999071406,mmsbeg.ce@amu.ac.in,Computer Architecture; Parallel Computing; Data Mining; NLP,default123,faculty

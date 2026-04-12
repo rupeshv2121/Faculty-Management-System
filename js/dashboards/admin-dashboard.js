@@ -47,22 +47,22 @@ async function renderAdminDashboard(user) {
         <div style="font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:12px;">Quick Actions</div>
         <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:12px;">
           <a href="faculty.html" class="quick-action">
-            <span class="qa-icon">&#10133;</span>
+            <span class="qa-icon"><i class="fa-solid fa-plus"></i></span>
             <span class="qa-label">Add Faculty</span>
             <span class="qa-sub">Create new record</span>
           </a>
           <a href="faculty.html" class="quick-action">
-            <span class="qa-icon">&#128100;</span>
+            <span class="qa-icon"><i class="fa-solid fa-users"></i></span>
             <span class="qa-label">All Faculty</span>
             <span class="qa-sub">Browse directory</span>
           </a>
           <a href="faculty.html?search=" class="quick-action">
-            <span class="qa-icon">&#128269;</span>
+            <span class="qa-icon"><i class="fa-solid fa-search"></i></span>
             <span class="qa-label">Search</span>
             <span class="qa-sub">Find by name/dept</span>
           </a>
           <a href="profile.html" class="quick-action">
-            <span class="qa-icon">&#9881;</span>
+            <span class="qa-icon"><i class="fa-solid fa-cog"></i></span>
             <span class="qa-label">Settings</span>
             <span class="qa-sub">Account info</span>
           </a>

@@ -12,9 +12,10 @@ document.addEventListener("DOMContentLoaded", async () => {
   // Load based on role
   if (user.role === "faculty") {
     // Load faculty profile module
-    if (document.querySelector('script[src="js/profiles/faculty.js"]')) {
+    try {
       await loadFacultyProfile(user);
-    } else {
+    } catch (err) {
+      console.error("Error loading faculty profile:", err);
       content.innerHTML = renderAccountCard(user) + renderNonFacultyCard(user.role);
     }
   } else {

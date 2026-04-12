@@ -11,6 +11,17 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   e.preventDefault();
   const btn = document.getElementById("loginBtn");
   const alert = document.getElementById("alertBox");
+  const password = document.getElementById("password").value;
+
+  // Validate password minimum length
+  if (password.length < 6) {
+    if (alert) {
+      alert.textContent = "Password must be at least 6 characters long";
+      alert.style.display = "flex";
+    }
+    return;
+  }
+
   if (alert) alert.style.display = "none";
   if (btn) {
     btn.disabled = true;
@@ -20,7 +31,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
   try {
     await api.login({
       username: document.getElementById("username").value.trim(),
-      password: document.getElementById("password").value,
+      password: password,
     });
     window.location.href = "/dashboard.html";
   } catch (err) {

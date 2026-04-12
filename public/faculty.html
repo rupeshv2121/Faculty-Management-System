@@ -30,18 +30,6 @@
             <h1>Faculty Directory</h1>
           </div>
           <div class="topbar-actions">
-            <span
-              id="totalBadge"
-              style="font-size: 13px; color: var(--muted)"
-            ></span>
-            <button
-              class="btn btn-primary"
-              id="addBtn"
-              onclick="openAddModal()"
-              style="display: none"
-            >
-              + Add Faculty
-            </button>
             <div id="profileDropdownContainer"></div>
           </div>
         </div>
@@ -49,18 +37,27 @@
         <div class="page-body">
           <div id="alertBox" class="alert" style="display: none"></div>
 
-          <div class="search-bar">
-            <input
-              class="search-input"
-              type="search"
-              id="searchInput"
-              placeholder="Search by name, department, subject..."
-            />
-            <button class="btn btn-outline" onclick="loadFaculty()">
-              Search
+          <div class="faculty-controls">
+            <div class="search-bar">
+              <input
+                class="search-input"
+                type="search"
+                id="searchInput"
+                placeholder="Search by name, department, subject..."
+              />
+              <button class="btn btn-outline" onclick="loadFaculty()">
+                Search
+              </button>
+            </div>
+            <button
+              class="btn btn-primary"
+              id="addBtn"
+              onclick="openAddModal()"
+              style=""
+            >
+              + Add Faculty
             </button>
           </div>
-
           <div class="card" style="padding: 0">
             <div class="table-wrap">
               <table>
@@ -108,6 +105,15 @@
                 id="f-name"
                 placeholder="Dr. First Last"
               />
+              <small
+                style="
+                  color: var(--muted);
+                  font-size: 11px;
+                  margin-top: 3px;
+                  display: block;
+                "
+                >2-50 characters, letters only</small
+              >
             </div>
             <div class="form-group">
               <label>Department *</label>
@@ -141,6 +147,15 @@
                 type="email"
                 placeholder="name@university.edu"
               />
+              <small
+                style="
+                  color: var(--muted);
+                  font-size: 11px;
+                  margin-top: 3px;
+                  display: block;
+                "
+                >Valid email: name@domain.com</small
+              >
             </div>
             <div class="form-group">
               <label>Mobile *</label>
@@ -149,6 +164,15 @@
                 id="f-mobile"
                 placeholder="10-digit number"
               />
+              <small
+                style="
+                  color: var(--muted);
+                  font-size: 11px;
+                  margin-top: 3px;
+                  display: block;
+                "
+                >Digits only, minimum 10</small
+              >
             </div>
             <div class="form-group">
               <label>Office Hours *</label>
@@ -173,9 +197,18 @@
                 id="f-exp"
                 type="number"
                 min="0"
-                max="50"
+                max="60"
                 placeholder="0"
               />
+              <small
+                style="
+                  color: var(--muted);
+                  font-size: 11px;
+                  margin-top: 3px;
+                  display: block;
+                "
+                >0-60 years</small
+              >
             </div>
             <div class="form-group" style="grid-column: 1/-1">
               <hr style="border-color: var(--border); margin: 4px 0" />
@@ -187,6 +220,15 @@
                 id="f-user"
                 placeholder="faculty login username"
               />
+              <small
+                style="
+                  color: var(--muted);
+                  font-size: 11px;
+                  margin-top: 3px;
+                  display: block;
+                "
+                >3-20 chars: letters, numbers, underscore</small
+              >
             </div>
             <div class="form-group">
               <label>Login Password *</label>
@@ -196,6 +238,15 @@
                 type="password"
                 placeholder="Set a password"
               />
+              <small
+                style="
+                  color: var(--muted);
+                  font-size: 11px;
+                  margin-top: 3px;
+                  display: block;
+                "
+                >Minimum 6 characters</small
+              >
             </div>
           </div>
         </div>

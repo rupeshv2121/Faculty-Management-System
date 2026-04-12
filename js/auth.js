@@ -58,11 +58,5 @@ async function doLogout() {
     window.location.href = "/login.html";
 }
 
-// Mobile sidebar toggle
-document.addEventListener("DOMContentLoaded", () => {
-    const hamburger = document.getElementById("hamburger");
-    const sidebar = document.querySelector(".sidebar");
-    if (hamburger && sidebar) {
-        hamburger.addEventListener("click", () => sidebar.classList.toggle("open"));
-    }
-});
+// Hamburger is set up by setupHamburger() in common.js
+// No need for duplicate setup here
