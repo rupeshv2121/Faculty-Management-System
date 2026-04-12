@@ -437,6 +437,8 @@ string handleGetFaculty(const string &facultyId)
     }
     return httpResponse(404, "application/json", R"({"status":"error","message":"Faculty not found"})");
 }
+
+string handleAddFaculty(const string &body, const string &allHeaders)
 {
     string sessionId;
     size_t cookiePos = allHeaders.find("Cookie:");
