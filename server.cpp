@@ -866,6 +866,13 @@ bool mustBeRole(const SessionInfo &s, const string &requiredRole)
 
 void handleClient(SOCKET clientSocket)
 {
+    sockaddr_in clientAddr{};
+    int clientLen = sizeof(clientAddr);
+    getpeername(clientSocket, reinterpret_cast<sockaddr *>(&clientAddr), &clientLen);
+    string clientIP = inet_ntoa(clientAddr.sin_addr);
+    int clientPort = ntohs(clientAddr.sin_port);
+    cout << "\n[CLIENT] Connected from " << clientIP << ":" << clientPort << "\n";
+
     string raw;
     if (!receiveHttpRequest(clientSocket, raw))
     {
@@ -877,10 +884,13 @@ void handleClient(SOCKET clientSocket)
     HttpRequest req;
     if (!parseHttpRequest(raw, req))
     {
+        cout << "[ERROR] Failed to parse HTTP request\n";
         sendAll(clientSocket, makeResponse(400, "text/plain; charset=utf-8", "Invalid HTTP request"));
         closesocket(clientSocket);
         return;
     }
+
+    cout << "[REQUEST] " << req.method << " " << req.path << "\n";
 
     string pathOnly;
     string queryString;
@@ -900,8 +910,11 @@ void handleClient(SOCKET clientSocket)
             string username = getJsonValue(body, "username");
             string password = getJsonValue(body, "password");
 
+            cout << "  [LOGIN] Username: " << username << "\n";
+
             if (username.empty() || password.empty())
             {
+                cout << "  [LOGIN FAILED] Empty username or password\n";
                 responsePayload = makeJsonErrorResponse(400, "Username and password are required");
             }
             else
@@ -909,15 +922,18 @@ void handleClient(SOCKET clientSocket)
                 Faculty user{};
                 if (!authenticateUser(username, password, user))
                 {
+                    cout << "  [LOGIN FAILED] Invalid credentials\n";
                     responsePayload = makeJsonErrorResponse(401, "Invalid username or password");
                 }
                 else
                 {
+                    cout << "  [LOGIN SUCCESS] User: " << user.name << " (" << user.id << ") - Role: " << user.role << "\n";
                     string sid = generateSessionId();
                     {
                         lock_guard<mutex> lock(sessionsMutex);
                         sessions[sid] = SessionInfo{user.role, user.id};
                     }
+                    cout << "  [SESSION] Created new session for user " << user.id << "\n";
 
                     vector<string> headers = {
                         "Set-Cookie: session=" + sid + "; Path=/; HttpOnly; SameSite=Strict; Max-Age=1800"};
@@ -938,6 +954,7 @@ void handleClient(SOCKET clientSocket)
         }
         else if (req.method == "POST" && pathOnly == "/api/auth/logout")
         {
+            cout << "  [LOGOUT] User logging out\n";
             eraseSession(req);
             vector<string> headers = {
                 "Set-Cookie: session=; Path=/; HttpOnly; SameSite=Strict; Max-Age=0"};
@@ -945,9 +962,11 @@ void handleClient(SOCKET clientSocket)
         }
         else if (req.method == "GET" && pathOnly == "/api/auth/me")
         {
+            cout << "  [API] /api/auth/me - Checking authentication\n";
             SessionInfo s;
             if (!getSessionInfo(req, s))
             {
+                cout << "       [ERROR] Not authenticated\n";
                 responsePayload = makeJsonErrorResponse(401, "Unauthorized");
             }
             else
@@ -955,10 +974,12 @@ void handleClient(SOCKET clientSocket)
                 Faculty user{};
                 if (!findUserBySession(s, user))
                 {
+                    cout << "       [ERROR] User not found\n";
                     responsePayload = makeJsonErrorResponse(401, "Unauthorized");
                 }
                 else
                 {
+                    cout << "       [SUCCESS] User: " << user.name << "\n";
                     stringstream bodyJson;
                     bodyJson << "{";
                     bodyJson << "\"id\":\"" << jsonEscape(user.id) << "\",";
@@ -978,11 +999,15 @@ void handleClient(SOCKET clientSocket)
             SessionInfo s;
             if (!getSessionInfo(req, s))
             {
+                cout << "  [API] /api/faculty - UNAUTHORIZED\n";
                 responsePayload = makeJsonErrorResponse(401, "Unauthorized");
             }
             else
             {
                 string term = toLower(trim(query.count("search") ? query["search"] : ""));
+                cout << "  [API] /api/faculty - User: " << s.userId << "\n";
+                if (!term.empty())
+                    cout << "       Search term: " << term << "\n";
                 vector<Faculty> list = loadData();
 
                 stringstream bodyJson;
@@ -1010,6 +1035,7 @@ void handleClient(SOCKET clientSocket)
                 }
 
                 bodyJson << "],\"total\":" << total << "}";
+                cout << "       Result: Found " << total << " faculty members\n";
                 responsePayload = makeResponse(200, "application/json; charset=utf-8", bodyJson.str());
             }
         }
@@ -1029,15 +1055,24 @@ void handleClient(SOCKET clientSocket)
 
                 if (req.method == "GET")
                 {
+                    cout << "  [API] GET /api/faculty/" << id << "\n";
                     if (it == list.end())
+                    {
+                        cout << "       [ERROR] Faculty not found\n";
                         responsePayload = makeJsonErrorResponse(404, "Faculty not found");
+                    }
                     else
+                    {
+                        cout << "       [SUCCESS] Found: " << it->name << "\n";
                         responsePayload = makeResponse(200, "application/json; charset=utf-8", facultyToJson(*it));
+                    }
                 }
                 else if (req.method == "PUT")
                 {
+                    cout << "  [API] PUT /api/faculty/" << id << " - Updating\n";
                     if (it == list.end())
                     {
+                        cout << "       [ERROR] Faculty not found\n";
                         responsePayload = makeJsonErrorResponse(404, "Faculty not found");
                     }
                     else
@@ -1049,6 +1084,7 @@ void handleClient(SOCKET clientSocket)
 
                         if (!isAdmin && !isSelfFaculty)
                         {
+                            cout << "       [ERROR] Access denied\n";
                             responsePayload = makeJsonErrorResponse(403, "Access denied");
                         }
                         else
@@ -1082,10 +1118,12 @@ void handleClient(SOCKET clientSocket)
 
                             if (!saveData(list))
                             {
+                                cout << "       [ERROR] Failed to save\n";
                                 responsePayload = makeJsonErrorResponse(500, "Failed to save data");
                             }
                             else
                             {
+                                cout << "       [SUCCESS] Faculty updated: " << it->name << "\n";
                                 responsePayload = makeResponse(200, "application/json; charset=utf-8", facultyToJson(*it));
                             }
                         }
@@ -1093,23 +1131,33 @@ void handleClient(SOCKET clientSocket)
                 }
                 else if (req.method == "DELETE")
                 {
+                    cout << "  [API] DELETE /api/faculty/" << id << "\n";
                     if (s.role != "admin")
                     {
+                        cout << "       [ERROR] Only admins can delete\n";
                         responsePayload = makeJsonErrorResponse(403, "Access denied");
                     }
                     else
                     {
                         if (it == list.end())
                         {
+                            cout << "       [ERROR] Faculty not found\n";
                             responsePayload = makeJsonErrorResponse(404, "Faculty not found");
                         }
                         else
                         {
+                            string deletedName = it->name;
                             list.erase(it);
                             if (!saveData(list))
+                            {
+                                cout << "       [ERROR] Failed to save\n";
                                 responsePayload = makeJsonErrorResponse(500, "Failed to save data");
+                            }
                             else
+                            {
+                                cout << "       [SUCCESS] Deleted faculty: " << deletedName << "\n";
                                 responsePayload = makeResponse(200, "application/json; charset=utf-8", "{\"ok\":true}");
+                            }
                         }
                     }
                 }
@@ -1121,13 +1169,16 @@ void handleClient(SOCKET clientSocket)
         }
         else if (req.method == "POST" && pathOnly == "/api/faculty")
         {
+            cout << "  [API] POST /api/faculty - Adding faculty\n";
             SessionInfo s;
             if (!getSessionInfo(req, s))
             {
+                cout << "       [ERROR] Unauthorized\n";
                 responsePayload = makeJsonErrorResponse(401, "Unauthorized");
             }
             else if (s.role != "admin")
             {
+                cout << "       [ERROR] Not an admin (role: " << s.role << ")\n";
                 responsePayload = makeJsonErrorResponse(403, "Access denied");
             }
             else
@@ -1167,17 +1218,25 @@ void handleClient(SOCKET clientSocket)
 
                     list.push_back(f);
                     if (!saveData(list))
+                    {
+                        cout << "       [ERROR] Failed to save data\n";
                         responsePayload = makeJsonErrorResponse(500, "Failed to save data");
+                    }
                     else
+                    {
+                        cout << "       [SUCCESS] New faculty - ID: " << f.id << ", Name: " << f.name << "\n";
                         responsePayload = makeResponse(201, "application/json; charset=utf-8", facultyToJson(f));
+                    }
                 }
             }
         }
         else if (req.method == "GET" && pathOnly == "/api/stats/summary")
         {
+            cout << "  [API] /api/stats/summary - Fetching stats\n";
             SessionInfo s;
             if (!getSessionInfo(req, s))
             {
+                cout << "       [ERROR] Not authenticated\n";
                 responsePayload = makeJsonErrorResponse(401, "Unauthorized");
             }
             else
@@ -1206,14 +1265,17 @@ void handleClient(SOCKET clientSocket)
                 bodyJson << "\"totalStudents\":" << studentCount << ",";
                 bodyJson << "\"recentlyAdded\":" << recentlyAdded;
                 bodyJson << "}";
+                cout << "       Faculty: " << facultyCount << ", Depts: " << departments.size() << ", Students: " << studentCount << "\n";
                 responsePayload = makeResponse(200, "application/json; charset=utf-8", bodyJson.str());
             }
         }
         else if (req.method == "GET" && pathOnly == "/api/stats/departments")
         {
+            cout << "  [API] /api/stats/departments - Fetching departments\n";
             SessionInfo s;
             if (!getSessionInfo(req, s))
             {
+                cout << "       [ERROR] Not authenticated\n";
                 responsePayload = makeJsonErrorResponse(401, "Unauthorized");
             }
             else
@@ -1237,6 +1299,7 @@ void handleClient(SOCKET clientSocket)
                     bodyJson << "{\"name\":\"" << jsonEscape(kv.first) << "\",\"count\":" << kv.second << "}";
                 }
                 bodyJson << "]}";
+                cout << "       Found " << counts.size() << " departments\n";
                 responsePayload = makeResponse(200, "application/json; charset=utf-8", bodyJson.str());
             }
         }
@@ -1274,6 +1337,7 @@ void handleClient(SOCKET clientSocket)
     }
 
     sendAll(clientSocket, responsePayload);
+    cout << "[DISCONNECT] Connection closed\n\n";
     closesocket(clientSocket);
 }
 
@@ -1318,7 +1382,14 @@ int main()
         return 1;
     }
 
-    cout << "Server running on port " << PORT << "...\n";
+    cout << "\n====================================\n";
+    cout << "FACULTY MANAGEMENT SYSTEM - SERVER\n";
+    cout << "Windows Socket (Winsock2)\n";
+    cout << "====================================\n";
+    cout << "Port: " << PORT << "\n";
+    cout << "Find your IP: ipconfig\n";
+    cout << "Access: http://<YOUR_IP>:" << PORT << "\n";
+    cout << "====================================\n\n";
 
     while (true)
     {
