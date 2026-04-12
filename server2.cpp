@@ -251,7 +251,7 @@ string handleListFaculty(const string &search = "")
             json += R"({"id":")" + jsonEscape(f.id) + R"(","name":")" + jsonEscape(f.name);
             json += R"(","department":")" + jsonEscape(f.dept) + R"(","designation":")" + jsonEscape(f.desig);
             json += R"(","mobile":")" + jsonEscape(f.mobile) + R"(","email":")" + jsonEscape(f.email);
-            json += R"(","subject":")" + jsonEscape(f.spec) + R"("})";
+            json += R"(","subject":")" + jsonEscape(f.spec) + R"(","qualification":"M.Tech","experience":"5","officeHours":"Mon-Wed 2-4 PM"})";
             first = false;
             count++;
         }
@@ -281,6 +281,7 @@ string handleLogin(const string &body)
             }
             string response = R"({"status":"success","sessionId":")" + sessionId +
                               R"(","userId":")" + jsonEscape(f.id) +
+                              R"(","facultyId":")" + jsonEscape(f.id) +
                               R"(","name":")" + jsonEscape(f.name) +
                               R"(","role":")" + jsonEscape(f.role) + R"("})";
             string setCookie = "sessionId=" + sessionId;
@@ -326,6 +327,18 @@ string handleAuthMe(const string &allHeaders)
         {
             auto sess = sessions[sessionId];
             cout << "SESSION FOUND! User: " << sess.userId << " Role: " << sess.role << endl;
+            auto faculty = loadData();
+            for (const auto &f : faculty)
+            {
+                if (f.id == sess.userId)
+                {
+                    string response = R"({"status":"success","userId":")" + jsonEscape(sess.userId) +
+                                      R"(","facultyId":")" + jsonEscape(sess.userId) +
+                                      R"(","name":")" + jsonEscape(f.name) +
+                                      R"(","role":")" + jsonEscape(sess.role) + R"("})";
+                    return httpResponse(200, "application/json", response);
+                }
+            }
             string response = R"({"status":"success","userId":")" + jsonEscape(sess.userId) +
                               R"(","role":")" + jsonEscape(sess.role) + R"("})";
             return httpResponse(200, "application/json", response);
@@ -404,7 +417,26 @@ string handleUserProfile(const string &allHeaders)
     return httpResponse(404, "application/json", R"({"status":"error","message":"User not found"})");
 }
 
-string handleAddFaculty(const string &body, const string &allHeaders)
+string handleGetFaculty(const string &facultyId)
+{
+    auto faculty = loadData();
+    for (const auto &f : faculty)
+    {
+        if (f.id == facultyId)
+        {
+            string response = R"({"status":"success","id":")" + jsonEscape(f.id) +
+                              R"(","name":")" + jsonEscape(f.name) +
+                              R"(","email":")" + jsonEscape(f.email) +
+                              R"(","mobile":")" + jsonEscape(f.mobile) +
+                              R"(","department":")" + jsonEscape(f.dept) +
+                              R"(","designation":")" + jsonEscape(f.desig) +
+                              R"(","subject":")" + jsonEscape(f.spec) +
+                              R"(","qualification":"M.Tech","experience":"5","officeHours":"Mon-Wed 2-4 PM"})";
+            return httpResponse(200, "application/json", response);
+        }
+    }
+    return httpResponse(404, "application/json", R"({"status":"error","message":"Faculty not found"})");
+}
 {
     string sessionId;
     size_t cookiePos = allHeaders.find("Cookie:");
@@ -539,6 +571,11 @@ void handleRequest(int clientSocket, const string &requestLine, const string &al
     {
         string search = getQueryParam(requestLine, "search");
         sendAll(clientSocket, handleListFaculty(search));
+    }
+    else if (path.find("/api/faculty/") == 0 && path != "/api/faculty/list")
+    {
+        string facultyId = path.substr(13);
+        sendAll(clientSocket, handleGetFaculty(facultyId));
     }
     else if (path == "/api/faculty")
     {
