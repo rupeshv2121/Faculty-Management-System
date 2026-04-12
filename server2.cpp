@@ -254,7 +254,7 @@ string handleListFaculty(const string &search = "")
 void handleRequest(int clientSocket, const string &requestLine, const string &body)
 {
     string path = parseRequestPath(requestLine);
-    
+
     // Debug: Log all requests
     cout << "REQUEST: " << path << endl;
 
@@ -296,30 +296,32 @@ void handleRequest(int clientSocket, const string &requestLine, const string &bo
     // Handle static files (css, js, images, etc)
     else if (path.find(".css") != string::npos || path.find(".js") != string::npos ||
              path.find(".png") != string::npos || path.find(".jpg") != string::npos ||
-             path.find(".jpeg") != string::npos || path.find(".txt") != string::npos)
+             path.find(".jpeg") != string::npos || path.find(".ico") != string::npos ||
+             path.find(".txt") != string::npos)
     {
-        // CSS and JS files are at root level (css/, js/)
-        // Assets and images are in public/assets
+        // Files at root level: ./css/, ./js/, ./assets/, ./components/
         string filePath;
-        if (path.find("/css/") == 0 || path.find("/js/") == 0)
+        if (path.find("/css/") == 0 || path.find("/js/") == 0 || path.find("/assets/") == 0 || path.find("/components/") == 0)
         {
-            filePath = "." + path;  // Look in root: ./css/ or ./js/
+            filePath = "." + path;
         }
         else
         {
-            filePath = "public" + path;  // Look in public/ for other files
+            filePath = "public" + path;
         }
-        
+
         cout << "LOADING FILE: " << filePath << endl;
         ifstream file(filePath, ios::binary);
         if (file)
         {
             cout << "FILE FOUND" << endl;
             string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-            string contentType = path.find(".css") != string::npos ? "text/css" : path.find(".js") != string::npos                                      ? "application/javascript"
-                                                                              : path.find(".png") != string::npos                                       ? "image/png"
-                                                                              : path.find(".jpg") != string::npos || path.find(".jpeg") != string::npos ? "image/jpeg"
-                                                                                                                                                        : "text/plain";
+            string contentType = path.find(".css") != string::npos ? "text/css" : 
+                                 path.find(".js") != string::npos ? "application/javascript" :
+                                 path.find(".png") != string::npos ? "image/png" :
+                                 path.find(".ico") != string::npos ? "image/x-icon" :
+                                 path.find(".jpg") != string::npos || path.find(".jpeg") != string::npos ? "image/jpeg"
+                                                                                                          : "text/plain";
             sendAll(clientSocket, httpResponse(200, contentType, content));
         }
         else
