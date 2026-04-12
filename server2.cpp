@@ -445,7 +445,15 @@ void handleRequest(int clientSocket, const string &requestLine, const string &al
              path.find(".jpeg") != string::npos || path.find(".ico") != string::npos ||
              path.find(".txt") != string::npos)
     {
-        string filePath = "public" + path;
+        string filePath;
+        if (path.find("/css/") == 0 || path.find("/js/") == 0 || path.find("/components/") == 0 || path.find("/assets/") == 0)
+        {
+            filePath = "." + path;
+        }
+        else
+        {
+            filePath = "public" + path;
+        }
         cout << "LOADING FILE: " << filePath << endl;
         ifstream file(filePath, ios::binary);
         if (file)
