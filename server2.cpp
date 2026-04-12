@@ -298,7 +298,18 @@ void handleRequest(int clientSocket, const string &requestLine, const string &bo
              path.find(".png") != string::npos || path.find(".jpg") != string::npos ||
              path.find(".jpeg") != string::npos || path.find(".txt") != string::npos)
     {
-        string filePath = "public" + path;
+        // CSS and JS files are at root level (css/, js/)
+        // Assets and images are in public/assets
+        string filePath;
+        if (path.find("/css/") == 0 || path.find("/js/") == 0)
+        {
+            filePath = "." + path;  // Look in root: ./css/ or ./js/
+        }
+        else
+        {
+            filePath = "public" + path;  // Look in public/ for other files
+        }
+        
         cout << "LOADING FILE: " << filePath << endl;
         ifstream file(filePath, ios::binary);
         if (file)
