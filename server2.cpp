@@ -194,11 +194,31 @@ vector<Faculty> loadData()
         if (line.empty() || line[0] == '#')
             continue;
 
+        // Parse comma-separated values: id,name,dept,desig,mobile,email,spec,pass,role
         Faculty f;
-        istringstream iss(line);
-        if (iss >> f.id >> f.name >> f.dept >> f.desig >> f.mobile >> f.email >> f.spec >> f.pass >> f.role)
+        vector<string> fields;
+        stringstream ss(line);
+        string field;
+        
+        while (getline(ss, field, ','))
         {
+            field = trim(field);
+            fields.push_back(field);
+        }
+        
+        if (fields.size() >= 9)
+        {
+            f.id = fields[0];
+            f.name = fields[1];
+            f.dept = fields[2];
+            f.desig = fields[3];
+            f.mobile = fields[4];
+            f.email = fields[5];
+            f.spec = fields[6];
+            f.pass = fields[7];
+            f.role = fields[8];
             faculty.push_back(f);
+            cout << "LOADED USER: id=" << f.id << " pass=" << f.pass << " role=" << f.role << endl;
         }
     }
     file.close();
@@ -256,7 +276,7 @@ map<string, string> parseJSON(const string &json)
 {
     map<string, string> result;
     cout << "PARSING JSON: " << json << endl;
-    
+
     size_t pos = 0;
     while ((pos = json.find("\"", pos)) != string::npos)
     {
@@ -292,11 +312,11 @@ map<string, string> parseJSON(const string &json)
 string handleLogin(const string &body)
 {
     cout << "LOGIN REQUEST BODY: " << body << endl;
-    
+
     auto data = parseJSON(body);
     string username = data["username"];
     string password = data["password"];
-    
+
     cout << "LOGIN ATTEMPT: username=" << username << " password=" << password << endl;
 
     auto faculty = loadData();
@@ -451,7 +471,9 @@ void handleClient(int clientSocket)
 {
     char buffer[4096];
     string allData;
+    int contentLength = 0;
 
+    // Read all data from socket
     while (true)
     {
         ssize_t bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
@@ -461,15 +483,40 @@ void handleClient(int clientSocket)
         buffer[bytesReceived] = '\0';
         allData += buffer;
 
+        // Find headers end
         size_t headerEnd = allData.find("\r\n\r\n");
         if (headerEnd != string::npos)
         {
-            size_t firstNewline = allData.find("\r\n");
-            string requestLine = allData.substr(0, firstNewline);
-            string body = allData.substr(headerEnd + 4);
+            // Extract Content-Length from headers
+            size_t clPos = allData.find("Content-Length:");
+            if (clPos != string::npos && clPos < headerEnd)
+            {
+                size_t clStart = allData.find_first_not_of(" \t", clPos + 15);
+                size_t clEnd = allData.find("\r\n", clStart);
+                string clStr = allData.substr(clStart, clEnd - clStart);
+                contentLength = stoi(clStr);
+                cout << "CONTENT-LENGTH: " << contentLength << endl;
+            }
 
-            handleRequest(clientSocket, requestLine, body);
-            break;
+            // Check if we have received all the body
+            size_t bodyStart = headerEnd + 4;
+            size_t bodyReceived = allData.size() - bodyStart;
+
+            cout << "BODY RECEIVED: " << bodyReceived << " bytes, EXPECTED: " << contentLength << " bytes" << endl;
+
+            // If Content-Length is 0 or we have received all body data
+            if (contentLength == 0 || bodyReceived >= static_cast<size_t>(contentLength))
+            {
+                size_t firstNewline = allData.find("\r\n");
+                string requestLine = allData.substr(0, firstNewline);
+                string body = (contentLength > 0) ? allData.substr(bodyStart, contentLength) : "";
+
+                cout << "REQUEST LINE: " << requestLine << endl;
+                cout << "BODY: " << body << endl;
+                
+                handleRequest(clientSocket, requestLine, body);
+                break;
+            }
         }
     }
 
