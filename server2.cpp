@@ -243,17 +243,20 @@ string handleListFaculty(const string &search = "")
     int count = 0;
     for (const auto &f : faculty)
     {
-        string combinedLower = toLower(f.name + " " + f.dept + " " + f.spec);
-        if (search.empty() || combinedLower.find(lower_search) != string::npos)
+        if (f.role == "faculty")
         {
-            if (!first)
-                json += ",";
-            json += R"({"id":")" + jsonEscape(f.id) + R"(","name":")" + jsonEscape(f.name);
-            json += R"(","department":")" + jsonEscape(f.dept) + R"(","designation":")" + jsonEscape(f.desig);
-            json += R"(","mobile":")" + jsonEscape(f.mobile) + R"(","email":")" + jsonEscape(f.email);
-            json += R"(","subject":")" + jsonEscape(f.spec) + R"(","qualification":"M.Tech","experience":"5","officeHours":"Mon-Wed 2-4 PM"})";
-            first = false;
-            count++;
+            string combinedLower = toLower(f.name + " " + f.dept + " " + f.spec);
+            if (search.empty() || combinedLower.find(lower_search) != string::npos)
+            {
+                if (!first)
+                    json += ",";
+                json += R"({"id":")" + jsonEscape(f.id) + R"(","name":")" + jsonEscape(f.name);
+                json += R"(","department":")" + jsonEscape(f.dept) + R"(","designation":")" + jsonEscape(f.desig);
+                json += R"(","mobile":")" + jsonEscape(f.mobile) + R"(","email":")" + jsonEscape(f.email);
+                json += R"(","subject":")" + jsonEscape(f.spec) + R"(","qualification":"M.Tech","experience":"5","officeHours":"Mon-Wed 2-4 PM"})";
+                first = false;
+                count++;
+            }
         }
     }
     json += R"(],"total":)" + to_string(count) + "}";
@@ -422,7 +425,7 @@ string handleGetFaculty(const string &facultyId)
     auto faculty = loadData();
     for (const auto &f : faculty)
     {
-        if (f.id == facultyId)
+        if (f.id == facultyId && f.role == "faculty")
         {
             string response = R"({"status":"success","id":")" + jsonEscape(f.id) +
                               R"(","name":")" + jsonEscape(f.name) +
