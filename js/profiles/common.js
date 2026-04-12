@@ -15,7 +15,7 @@ function renderAccountCard(user) {
         </div>
       </div>
       <div class="detail-grid">
-        <div class="detail-field"><div class="field-label">Username</div><div class="field-value">${esc(user.username)}</div></div>
+        <div class="detail-field"><div class="field-label">Faculty ID or Username</div><div class="field-value">${esc(user.username)}</div></div>
         <div class="detail-field"><div class="field-label">Role</div><div class="field-value">${esc(user.role)}</div></div>
       </div>
     </div>

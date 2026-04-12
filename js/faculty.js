@@ -1,13 +1,33 @@
 // Script for faculty.html moved from inline <script>
 let user = null;
+let searchTimeout;
 
 document.addEventListener("DOMContentLoaded", async () => {
   setActiveNav("nav-faculty");
   user = await loadUser();
-  if (user.role === "admin") document.getElementById("addBtn").style.display = "inline-flex";
 
+  // Show Add Faculty button only for admin
+  const addBtn = document.getElementById("addBtn");
+  if (user.role === "admin") {
+    addBtn.style.display = "inline-flex";
+  } else {
+    addBtn.style.display = "none";
+  }
+
+  // Search on every character with debounce
+  document.getElementById("searchInput").addEventListener("input", e => {
+    clearTimeout(searchTimeout);
+    searchTimeout = setTimeout(() => {
+      loadFaculty();
+    }, 300); // Debounce for 300ms
+  });
+
+  // Also allow Enter key for immediate search
   document.getElementById("searchInput").addEventListener("keydown", e => {
-    if (e.key === "Enter") loadFaculty();
+    if (e.key === "Enter") {
+      clearTimeout(searchTimeout);
+      loadFaculty();
+    }
   });
 
   await loadFaculty();
@@ -75,7 +95,6 @@ async function saveFaculty() {
     subject: document.getElementById("f-subj").value.trim(),
     email: document.getElementById("f-email").value.trim(),
     mobile: document.getElementById("f-mobile").value.trim(),
-    officeHours: document.getElementById("f-hours").value.trim(),
     qualification: document.getElementById("f-qual").value.trim(),
     experience: parseFloat(document.getElementById("f-exp").value) || 0,
     username: document.getElementById("f-user").value.trim(),
@@ -105,9 +124,9 @@ async function saveFaculty() {
     return;
   }
 
-  // Validate Mobile (digits only, at least 10 digits)
-  if (!/^\d+$/.test(body.mobile) || body.mobile.length < 10) {
-    alertEl.textContent = "Mobile number must contain only digits and be at least 10 digits long.";
+  // Validate Mobile (digits only, exactly 10 digits)
+  if (!/^\d+$/.test(body.mobile) || body.mobile.length !== 10) {
+    alertEl.textContent = "Mobile number must contain only digits and be exactly 10 digits long.";
     alertEl.style.display = "flex";
     return;
   }
@@ -140,13 +159,6 @@ async function saveFaculty() {
     return;
   }
 
-  // Validate Office Hours (optional, but if provided should be reasonable length)
-  if (body.officeHours && body.officeHours.length > 100) {
-    alertEl.textContent = "Office Hours cannot exceed 100 characters.";
-    alertEl.style.display = "flex";
-    return;
-  }
-
   // Validate Qualification (optional, but if provided should be reasonable length)
   if (body.qualification && body.qualification.length > 100) {
     alertEl.textContent = "Qualification cannot exceed 100 characters.";
@@ -156,7 +168,7 @@ async function saveFaculty() {
 
   // Validate Username (3-20 chars, alphanumeric and underscore)
   if (!/^[a-zA-Z0-9_]{3,20}$/.test(body.username)) {
-    alertEl.textContent = "Username must be 3-20 characters (letters, numbers, underscore only).";
+    alertEl.textContent = "Faculty ID or username must be 3-20 characters (letters, numbers, underscore only).";
     alertEl.style.display = "flex";
     return;
   }

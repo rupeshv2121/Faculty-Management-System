@@ -84,7 +84,6 @@ function renderFacultyCard(editMode = false) {
           <div class="detail-field"><div class="field-label">Subject</div><div class="field-value">${esc(faculty.subject)}</div></div>
           <div class="detail-field"><div class="field-label">Qualification</div><div class="field-value">${esc(faculty.qualification)}</div></div>
           <div class="detail-field"><div class="field-label">Experience</div><div class="field-value">${faculty.experience} year(s)</div></div>
-          <div class="detail-field"><div class="field-label">Office Hours</div><div class="field-value">${esc(faculty.officeHours)}</div></div>
         </div>
 
         <div style="font-size:13px;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);font-weight:700;margin:24px 0 16px 0;">Contact Information</div>
@@ -149,9 +148,9 @@ async function saveFacultyContact() {
     return;
   }
 
-  // Validate mobile format (basic check - must be numbers)
-  if (!/^\d+$/.test(body.mobile) || body.mobile.length < 10) {
-    alertEl.textContent = "Please enter a valid mobile number (at least 10 digits).";
+  // Validate mobile format (exactly 10 digits)
+  if (!/^\d+$/.test(body.mobile) || body.mobile.length !== 10) {
+    alertEl.textContent = "Please enter a valid mobile number (exactly 10 digits).";
     alertEl.style.display = "flex";
     return;
   }

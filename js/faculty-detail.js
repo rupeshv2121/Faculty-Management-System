@@ -63,7 +63,6 @@ function renderView() {
         ${field("Subject", faculty.subject)}
         ${field("Qualification", faculty.qualification)}
         ${field("Experience", faculty.experience + " year(s)")}
-        ${field("Office Hours", faculty.officeHours)}
       </div>
 
       <div class="section-title">Contact Information</div>
@@ -108,7 +107,6 @@ function renderEdit() {
         <div class="form-group"><label>Subject</label><input class="form-control" id="e-subj" value="${esc(faculty.subject)}"></div>
         <div class="form-group"><label>Qualification</label><input class="form-control" id="e-qual" value="${esc(faculty.qualification)}"></div>
         <div class="form-group"><label>Experience (years)</label><input class="form-control" id="e-exp" type="number" min="0" max="50" value="${faculty.experience}"></div>
-        <div class="form-group"><label>Office Hours</label><input class="form-control" id="e-hours" value="${esc(faculty.officeHours)}"></div>
       </div>`
       : `<div class="edit-note">As a faculty member, you can only update your email and mobile number.</div>`
     }
@@ -137,7 +135,6 @@ async function saveEdit() {
     body.subject = document.getElementById("e-subj").value.trim();
     body.qualification = document.getElementById("e-qual").value.trim();
     body.experience = parseFloat(document.getElementById("e-exp").value) || 0;
-    body.officeHours = document.getElementById("e-hours").value.trim();
   }
 
   btn.disabled = true;

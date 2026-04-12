@@ -36,7 +36,7 @@ mutex fileMutex;
 
 struct Faculty
 {
-    string id, name, dept, desig, mobile, email, spec, pass, role;
+    string id, name, dept, desig, mobile, email, spec, pass, role, username;
 };
 
 struct HttpRequest
@@ -390,7 +390,6 @@ string facultyToJson(const Faculty &f)
     ss << "\"subject\":\"" << jsonEscape(f.spec) << "\",";
     ss << "\"email\":\"" << jsonEscape(f.email) << "\",";
     ss << "\"mobile\":\"" << jsonEscape(f.mobile) << "\",";
-    ss << "\"officeHours\":\"N/A\",";
     ss << "\"qualification\":\"N/A\",";
     ss << "\"experience\":0";
     ss << "}";
@@ -424,8 +423,9 @@ bool authenticateUser(const string &usernameInput, const string &password, Facul
         string idLower = toLower(f.id);
         string nameLower = toLower(f.name);
         string emailLower = toLower(f.email);
+        string usernameLower = toLower(f.username);
 
-        if (username == idLower || username == nameLower || username == emailLower)
+        if (username == idLower || username == nameLower || username == emailLower || username == usernameLower)
         {
             out = f;
             return true;
@@ -449,7 +449,7 @@ string nextFacultyId(const vector<Faculty> &list)
     return to_string(maxId + 1);
 }
 
-bool splitCsvLine(const string &line, array<string, 9> &fields)
+bool splitCsvLine(const string &line, array<string, 10> &fields)
 {
     stringstream ss(line);
     for (size_t i = 0; i < fields.size(); ++i)
@@ -478,7 +478,7 @@ vector<Faculty> loadData()
         if (trim(line).empty())
             continue;
 
-        array<string, 9> fields{};
+        array<string, 10> fields{};
         if (!splitCsvLine(line, fields))
             continue;
 
@@ -492,6 +492,7 @@ vector<Faculty> loadData()
         f.spec = trim(fields[6]);
         f.pass = trim(fields[7]);
         f.role = trim(fields[8]);
+        f.username = trim(fields[9]);
 
         if (!isValidRole(f.role))
             continue;
@@ -514,7 +515,7 @@ bool saveData(const vector<Faculty> &list)
     {
         file << f.id << "," << f.name << "," << f.dept << ","
              << f.desig << "," << f.mobile << "," << f.email << ","
-             << f.spec << "," << f.pass << "," << f.role << "\n";
+             << f.spec << "," << f.pass << "," << f.role << "," << f.username << "\n";
     }
 
     file.flush();
@@ -529,7 +530,7 @@ bool appendRawFacultyCsvLine(const string &line)
     if (line.find('\n') != string::npos || line.find('\r') != string::npos)
         return false;
 
-    array<string, 9> fields{};
+    array<string, 10> fields{};
     if (!splitCsvLine(line, fields))
         return false;
     if (!isValidRole(trim(fields[8])))
@@ -550,8 +551,8 @@ bool hasCsvUnsafeChars(const string &value)
 
 bool buildCsvLineFromForm(const map<string, string> &form, string &csvLine)
 {
-    const array<string, 9> keys = {"id", "name", "dept", "desig", "mobile", "email", "spec", "pass", "role"};
-    array<string, 9> values{};
+    const array<string, 10> keys = {"id", "name", "dept", "desig", "mobile", "email", "spec", "pass", "role", "username"};
+    array<string, 10> values{};
 
     for (size_t i = 0; i < keys.size(); ++i)
     {
@@ -577,7 +578,7 @@ bool buildCsvLineFromForm(const map<string, string> &form, string &csvLine)
 bool isOptionalFieldAllowedForAdminUpdate(const string &key)
 {
     return key == "name" || key == "dept" || key == "desig" || key == "mobile" ||
-           key == "email" || key == "spec" || key == "pass" || key == "role";
+           key == "email" || key == "spec" || key == "pass" || key == "role" || key == "username";
 }
 
 string urlDecode(const string &s)
@@ -1107,14 +1108,21 @@ void handleClient(SOCKET clientSocket)
                                 v = getJsonValue(body, "subject");
                                 if (!v.empty() && !hasCsvUnsafeChars(v))
                                     it->spec = v;
+
+                                v = getJsonValue(body, "username");
+                                if (!v.empty() && !hasCsvUnsafeChars(v))
+                                    it->username = v;
                             }
 
                             string email = getJsonValue(body, "email");
                             string mobile = getJsonValue(body, "mobile");
+                            string username = getJsonValue(body, "username");
                             if (!email.empty() && !hasCsvUnsafeChars(email))
                                 it->email = email;
                             if (!mobile.empty() && !hasCsvUnsafeChars(mobile))
                                 it->mobile = mobile;
+                            if (!isAdmin && !username.empty() && !hasCsvUnsafeChars(username))
+                                it->username = username;
 
                             if (!saveData(list))
                             {
@@ -1191,13 +1199,14 @@ void handleClient(SOCKET clientSocket)
                 string email = getJsonValue(body, "email");
                 string mobile = getJsonValue(body, "mobile");
                 string password = getJsonValue(body, "password");
+                string username = getJsonValue(body, "username");
 
-                if (name.empty() || department.empty() || designation.empty() || subject.empty() || email.empty() || mobile.empty() || password.empty())
+                if (name.empty() || department.empty() || designation.empty() || subject.empty() || email.empty() || mobile.empty() || password.empty() || username.empty())
                 {
                     responsePayload = makeJsonErrorResponse(400, "Missing required fields");
                 }
                 else if (hasCsvUnsafeChars(name) || hasCsvUnsafeChars(department) || hasCsvUnsafeChars(designation) ||
-                         hasCsvUnsafeChars(subject) || hasCsvUnsafeChars(email) || hasCsvUnsafeChars(mobile) || hasCsvUnsafeChars(password))
+                         hasCsvUnsafeChars(subject) || hasCsvUnsafeChars(email) || hasCsvUnsafeChars(mobile) || hasCsvUnsafeChars(password) || hasCsvUnsafeChars(username))
                 {
                     responsePayload = makeJsonErrorResponse(400, "Invalid characters in input");
                 }
@@ -1215,6 +1224,7 @@ void handleClient(SOCKET clientSocket)
                     f.spec = subject;
                     f.pass = password;
                     f.role = "faculty";
+                    f.username = username;
 
                     list.push_back(f);
                     if (!saveData(list))
@@ -1224,7 +1234,7 @@ void handleClient(SOCKET clientSocket)
                     }
                     else
                     {
-                        cout << "       [SUCCESS] New faculty - ID: " << f.id << ", Name: " << f.name << "\n";
+                        cout << "       [SUCCESS] New faculty - ID: " << f.id << ", Name: " << f.name << ", Username: " << f.username << "\n";
                         responsePayload = makeResponse(201, "application/json; charset=utf-8", facultyToJson(f));
                     }
                 }

@@ -1312,8 +1312,7 @@ tbody tr:last-child {
     align-items: stretch;
   }
   .search-bar {
-    width: 100%;
-    min-width: 100%;
+    width: 20%;
   }
   .faculty-controls .btn {
     width: 100%;
@@ -1335,8 +1334,11 @@ tbody tr:last-child {
     align-items: stretch;
   }
   .search-bar {
-    width: 100%;
-    min-width: 100%;
+    width: 20%;
+  }
+
+  .search-input {
+    width: 70%;
   }
   .faculty-controls .btn {
     width: 100%;

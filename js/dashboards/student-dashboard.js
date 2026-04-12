@@ -64,7 +64,7 @@ async function renderStudentDashboard(user) {
         </div>
         <div class="table-wrap" style="margin-top:12px;">
           <table>
-            <thead><tr><th>Name</th><th>Department</th><th>Subject</th><th>Office Hours</th><th>Email</th><th></th></tr></thead>
+            <thead><tr><th>Name</th><th>Department</th><th>Subject</th><th>Email</th><th></th></tr></thead>
             <tbody>
               ${facultyData.faculty
         .slice(0, 5)
@@ -72,7 +72,6 @@ async function renderStudentDashboard(user) {
                 <td data-label="Name"><strong>${esc(f.name)}</strong></td>
                 <td data-label="Department"><span class="badge badge-dept">${esc(f.department)}</span></td>
                 <td data-label="Subject">${esc(f.subject)}</td>
-                <td data-label="Office Hours" style="font-size:12px;color:var(--muted);">${esc(f.officeHours)}</td>
                 <td data-label="Email"><a href="mailto:${esc(f.email)}" style="color:var(--navy);font-size:13px;">${esc(f.email)}</a></td>
                 <td data-label="Actions"><a href="faculty-detail.html?id=${f.id}" class="btn btn-outline btn-sm">View</a></td>
               </tr>`)

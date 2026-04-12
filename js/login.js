@@ -36,7 +36,7 @@ document.getElementById("loginForm").addEventListener("submit", async (e) => {
     window.location.href = "/dashboard.html";
   } catch (err) {
     if (alert) {
-      alert.textContent = err.error || "Invalid username or password";
+      alert.textContent = err.error || "Invalid Faculty ID/username or password";
       alert.style.display = "flex";
     }
     if (btn) {

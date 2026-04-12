@@ -44,7 +44,6 @@ async function renderFacultyDashboard(user) {
             <div class="detail-field"><div class="field-label">Subject</div><div class="field-value">${esc(myRecord.subject)}</div></div>
             <div class="detail-field"><div class="field-label">Qualification</div><div class="field-value">${esc(myRecord.qualification)}</div></div>
             <div class="detail-field"><div class="field-label">Experience</div><div class="field-value">${myRecord.experience} year(s)</div></div>
-            <div class="detail-field"><div class="field-label">Office Hours</div><div class="field-value">${esc(myRecord.officeHours)}</div></div>
           </div>
           <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;">Contact (you can update these)</div>
           <div class="contact-info-row">
@@ -81,7 +80,12 @@ async function renderFacultyDashboard(user) {
           ${colleagues.length === 0
           ? renderEmptyState("&#128100;", "No colleagues yet", "No other faculty in your department.")
           : `<div class="table-wrap"><table>
-            <thead><tr><th>Name</th><th>Designation</th><th>Subject</th><th>Office Hours</th><th></th></tr></thead>
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Designation</th>
+                <th>Subject</th>
+                <th></th></tr></thead>
             <tbody>
               ${colleagues.slice(0, 5).map(f => `<tr>
                 <td><strong>${esc(f.name)}</strong></td>

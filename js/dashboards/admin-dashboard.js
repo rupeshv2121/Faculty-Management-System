@@ -61,11 +61,6 @@ async function renderAdminDashboard(user) {
             <span class="qa-label">Search</span>
             <span class="qa-sub">Find by name/dept</span>
           </a>
-          <a href="profile.html" class="quick-action">
-            <span class="qa-icon"><i class="fa-solid fa-cog"></i></span>
-            <span class="qa-label">Settings</span>
-            <span class="qa-sub">Account info</span>
-          </a>
         </div>
       </div>
 
