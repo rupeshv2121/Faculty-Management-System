@@ -1,14 +1,5 @@
-// Common utilities for all dashboard modules
-// esc() function is now in js/common.js - shared globally
-
-/**
- * Chart colors palette - Green theme
- */
 const CHART_COLORS = ["#2d7a5e", "#4a9f7d", "#7dd9a8", "#1f5543", "#5a9d7d", "#22c55e"];
 
-/**
- * Render a horizontal bar chart for department faculty count
- */
 function renderDepartmentChart(departments, containerId, labelsId) {
   const max = Math.max(...departments.map(d => d.count), 1);
   const barsEl = document.getElementById(containerId);

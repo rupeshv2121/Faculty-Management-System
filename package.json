@@ -1,0 +1,12 @@
+{
+    "name": "faculty-management-system",
+    "version": "1.0.0",
+    "description": "Faculty Management System",
+    "scripts": {
+        "build": "g++ -std=c++17 -pthread -o server2 server2.cpp",
+        "start": "./server2"
+    },
+    "engines": {
+        "node": "18.x"
+    }
+}
