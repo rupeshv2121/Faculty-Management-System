@@ -28,55 +28,77 @@ using namespace std;
 
 int PORT = 8080;
 
-struct SessionInfo {
+struct SessionInfo
+{
     string role, userId;
 };
 
 map<string, SessionInfo> sessions;
 mutex sessionsMutex, fileMutex;
 
-struct Faculty {
+struct Faculty
+{
     string id, name, dept, desig, mobile, email, spec, pass, role;
 };
 
-string trim(const string &s) {
+string trim(const string &s)
+{
     size_t start = 0;
-    while (start < s.size() && isspace(static_cast<unsigned char>(s[start]))) ++start;
+    while (start < s.size() && isspace(static_cast<unsigned char>(s[start])))
+        ++start;
     size_t end = s.size();
-    while (end > start && isspace(static_cast<unsigned char>(s[end - 1]))) --end;
+    while (end > start && isspace(static_cast<unsigned char>(s[end - 1])))
+        --end;
     return s.substr(start, end - start);
 }
 
-string toLower(string s) {
-    transform(s.begin(), s.end(), s.begin(), [](unsigned char c) { return static_cast<char>(tolower(c)); });
+string toLower(string s)
+{
+    transform(s.begin(), s.end(), s.begin(), [](unsigned char c)
+              { return static_cast<char>(tolower(c)); });
     return s;
 }
 
-bool sendAll(int sock, const string &data) {
+bool sendAll(int sock, const string &data)
+{
     size_t sentTotal = 0;
-    while (sentTotal < data.size()) {
+    while (sentTotal < data.size())
+    {
         ssize_t sent = send(sock, data.c_str() + sentTotal, data.size() - sentTotal, 0);
-        if (sent <= 0) return false;
+        if (sent <= 0)
+            return false;
         sentTotal += static_cast<size_t>(sent);
     }
     return true;
 }
 
-string reasonPhrase(int status) {
-    switch (status) {
-        case 200: return "OK";
-        case 201: return "Created";
-        case 400: return "Bad Request";
-        case 401: return "Unauthorized";
-        case 403: return "Forbidden";
-        case 404: return "Not Found";
-        case 409: return "Conflict";
-        case 500: return "Internal Server Error";
-        default: return "Unknown";
+string reasonPhrase(int status)
+{
+    switch (status)
+    {
+    case 200:
+        return "OK";
+    case 201:
+        return "Created";
+    case 400:
+        return "Bad Request";
+    case 401:
+        return "Unauthorized";
+    case 403:
+        return "Forbidden";
+    case 404:
+        return "Not Found";
+    case 409:
+        return "Conflict";
+    case 500:
+        return "Internal Server Error";
+    default:
+        return "Unknown";
     }
 }
 
-string httpResponse(int status, const string &contentType, const string &body, const string &setCookie = "") {
+string httpResponse(int status, const string &contentType, const string &body, const string &setCookie = "")
+{
     ostringstream oss;
     oss << "HTTP/1.1 " << status << " " << reasonPhrase(status) << "\r\n";
     oss << "Content-Type: " << contentType << "\r\n";
@@ -84,7 +106,8 @@ string httpResponse(int status, const string &contentType, const string &body, c
     oss << "Access-Control-Allow-Origin: *\r\n";
     oss << "Access-Control-Allow-Credentials: true\r\n";
     oss << "Access-Control-Allow-Headers: Content-Type, Authorization, X-Session-ID\r\n";
-    if (!setCookie.empty()) {
+    if (!setCookie.empty())
+    {
         oss << "Set-Cookie: " << setCookie << "; Path=/; HttpOnly; SameSite=Lax\r\n";
     }
     oss << "Connection: close\r\n\r\n";
@@ -92,7 +115,8 @@ string httpResponse(int status, const string &contentType, const string &body, c
     return oss.str();
 }
 
-string parseRequestPath(const string &requestLine) {
+string parseRequestPath(const string &requestLine)
+{
     istringstream iss(requestLine);
     string method, path, version;
     iss >> method >> path >> version;
@@ -100,52 +124,69 @@ string parseRequestPath(const string &requestLine) {
     return (qpos != string::npos) ? path.substr(0, qpos) : path;
 }
 
-string getQueryParam(const string &requestLine, const string &param) {
+string getQueryParam(const string &requestLine, const string &param)
+{
     size_t qpos = requestLine.find('?');
-    if (qpos == string::npos) return "";
+    if (qpos == string::npos)
+        return "";
     string query = requestLine.substr(qpos + 1);
     string search = param + "=";
     size_t pos = query.find(search);
-    if (pos == string::npos) return "";
+    if (pos == string::npos)
+        return "";
     pos += search.length();
     size_t end = query.find('&', pos);
-    if (end == string::npos) end = query.length();
+    if (end == string::npos)
+        end = query.length();
     string value = query.substr(pos, end - pos);
     return value;
 }
 
-string jsonEscape(const string &s) {
+string jsonEscape(const string &s)
+{
     string result;
-    for (char c : s) {
-        if (c == '"') result += "\\\"";
-        else if (c == '\\') result += "\\\\";
-        else if (c == '\n') result += "\\n";
-        else if (c == '\r') result += "\\r";
-        else result += c;
+    for (char c : s)
+    {
+        if (c == '"')
+            result += "\\\"";
+        else if (c == '\\')
+            result += "\\\\";
+        else if (c == '\n')
+            result += "\\n";
+        else if (c == '\r')
+            result += "\\r";
+        else
+            result += c;
     }
     return result;
 }
 
-vector<Faculty> loadData() {
+vector<Faculty> loadData()
+{
     vector<Faculty> faculty;
     string line;
     ifstream file("users.txt", ios::in);
-    if (!file.is_open()) {
+    if (!file.is_open())
+    {
         cerr << "Warning: Could not open users.txt" << endl;
         return faculty;
     }
-    while (getline(file, line)) {
+    while (getline(file, line))
+    {
         line = trim(line);
-        if (line.empty() || line[0] == '#') continue;
+        if (line.empty() || line[0] == '#')
+            continue;
         Faculty f;
         vector<string> fields;
         stringstream ss(line);
         string field;
-        while (getline(ss, field, ',')) {
+        while (getline(ss, field, ','))
+        {
             field = trim(field);
             fields.push_back(field);
         }
-        if (fields.size() >= 9) {
+        if (fields.size() >= 9)
+        {
             f.id = fields[0];
             f.name = fields[1];
             f.dept = fields[2];
@@ -163,22 +204,28 @@ vector<Faculty> loadData() {
     return faculty;
 }
 
-map<string, string> parseJSON(const string &json) {
+map<string, string> parseJSON(const string &json)
+{
     map<string, string> result;
     cout << "PARSING JSON: " << json << endl;
     size_t pos = 0;
-    while ((pos = json.find("\"", pos)) != string::npos) {
+    while ((pos = json.find("\"", pos)) != string::npos)
+    {
         size_t keyStart = pos + 1;
         size_t keyEnd = json.find("\"", keyStart);
-        if (keyEnd == string::npos) break;
+        if (keyEnd == string::npos)
+            break;
         string key = json.substr(keyStart, keyEnd - keyStart);
         size_t colonPos = json.find(":", keyEnd);
-        if (colonPos == string::npos) break;
+        if (colonPos == string::npos)
+            break;
         size_t valueStart = json.find("\"", colonPos);
-        if (valueStart == string::npos) break;
+        if (valueStart == string::npos)
+            break;
         valueStart++;
         size_t valueEnd = json.find("\"", valueStart);
-        if (valueEnd == string::npos) break;
+        if (valueEnd == string::npos)
+            break;
         string value = json.substr(valueStart, valueEnd - valueStart);
         result[key] = value;
         cout << "KEY: " << key << " => VALUE: " << value << endl;
@@ -187,15 +234,19 @@ map<string, string> parseJSON(const string &json) {
     return result;
 }
 
-string handleListFaculty(const string &search = "") {
+string handleListFaculty(const string &search = "")
+{
     auto faculty = loadData();
     string lower_search = toLower(search);
     string json = R"({"status":"success","faculty":[)";
     bool first = true;
-    for (const auto &f : faculty) {
+    for (const auto &f : faculty)
+    {
         string combinedLower = toLower(f.name + " " + f.dept + " " + f.spec);
-        if (search.empty() || combinedLower.find(lower_search) != string::npos) {
-            if (!first) json += ",";
+        if (search.empty() || combinedLower.find(lower_search) != string::npos)
+        {
+            if (!first)
+                json += ",";
             json += R"({"id":")" + jsonEscape(f.id) + R"(","name":")" + jsonEscape(f.name);
             json += R"(","department":")" + jsonEscape(f.dept) + R"(","designation":")" + jsonEscape(f.desig);
             json += R"(","mobile":")" + jsonEscape(f.mobile) + R"(","email":")" + jsonEscape(f.email);
@@ -207,23 +258,26 @@ string handleListFaculty(const string &search = "") {
     return httpResponse(200, "application/json", json);
 }
 
-string handleLogin(const string &body) {
+string handleLogin(const string &body)
+{
     cout << "LOGIN REQUEST BODY: " << body << endl;
     auto data = parseJSON(body);
     string username = data["username"];
     string password = data["password"];
     cout << "LOGIN ATTEMPT: username=" << username << " password=" << password << endl;
     auto faculty = loadData();
-    for (const auto &f : faculty) {
+    for (const auto &f : faculty)
+    {
         cout << "CHECKING: " << f.id << " / " << f.pass << endl;
-        if (f.id == username && f.pass == password) {
+        if (f.id == username && f.pass == password)
+        {
             cout << "LOGIN SUCCESS for " << username << endl;
             string sessionId = "session_" + to_string(rand() % 1000000);
             sessions[sessionId] = {f.role, f.id};
             string response = R"({"status":"success","sessionId":")" + sessionId +
-                            R"(","userId":")" + jsonEscape(f.id) +
-                            R"(","name":")" + jsonEscape(f.name) +
-                            R"(","role":")" + jsonEscape(f.role) + R"("})";
+                              R"(","userId":")" + jsonEscape(f.id) +
+                              R"(","name":")" + jsonEscape(f.name) +
+                              R"(","role":")" + jsonEscape(f.role) + R"("})";
             string setCookie = "sessionId=" + sessionId;
             return httpResponse(200, "application/json", response, setCookie);
         }
@@ -232,30 +286,37 @@ string handleLogin(const string &body) {
     return httpResponse(401, "application/json", R"({"status":"error","message":"Invalid credentials"})");
 }
 
-string handleAuthMe(const string &allHeaders) {
-    cout << "AUTH ME REQUEST HEADERS:\n" << allHeaders << endl;
+string handleAuthMe(const string &allHeaders)
+{
+    cout << "AUTH ME REQUEST HEADERS:\n"
+         << allHeaders << endl;
     string sessionId;
     size_t cookiePos = allHeaders.find("Cookie:");
-    if (cookiePos != string::npos) {
+    if (cookiePos != string::npos)
+    {
         size_t cookieEnd = allHeaders.find("\r\n", cookiePos);
         string cookies = allHeaders.substr(cookiePos + 7, cookieEnd - cookiePos - 7);
         cout << "COOKIES: " << cookies << endl;
         size_t sessionStart = cookies.find("sessionId=");
-        if (sessionStart != string::npos) {
+        if (sessionStart != string::npos)
+        {
             sessionStart += 10;
             size_t sessionEnd = cookies.find(";", sessionStart);
-            if (sessionEnd == string::npos) sessionEnd = cookies.length();
+            if (sessionEnd == string::npos)
+                sessionEnd = cookies.length();
             sessionId = cookies.substr(sessionStart, sessionEnd - sessionStart);
             sessionId = trim(sessionId);
             cout << "SESSION FROM COOKIE: " << sessionId << endl;
         }
     }
-    if (sessionId.empty()) {
+    if (sessionId.empty())
+    {
         cout << "NO SESSION ID FOUND" << endl;
         return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
     }
     cout << "CHECKING SESSION: " << sessionId << endl;
-    if (sessions.find(sessionId) != sessions.end()) {
+    if (sessions.find(sessionId) != sessions.end())
+    {
         auto sess = sessions[sessionId];
         cout << "SESSION FOUND! User: " << sess.userId << " Role: " << sess.role << endl;
         string response = R"({"status":"success","userId":")" + jsonEscape(sess.userId) +
@@ -268,19 +329,24 @@ string handleAuthMe(const string &allHeaders) {
 
 void handleRequest(int clientSocket, const string &requestLine, const string &allHeaders, const string &body);
 
-void handleClient(int clientSocket) {
+void handleClient(int clientSocket)
+{
     char buffer[4096];
     string allData;
     int contentLength = 0;
-    while (true) {
+    while (true)
+    {
         ssize_t bytesReceived = recv(clientSocket, buffer, sizeof(buffer) - 1, 0);
-        if (bytesReceived <= 0) break;
+        if (bytesReceived <= 0)
+            break;
         buffer[bytesReceived] = '\0';
         allData += buffer;
         size_t headerEnd = allData.find("\r\n\r\n");
-        if (headerEnd != string::npos) {
+        if (headerEnd != string::npos)
+        {
             size_t clPos = allData.find("Content-Length:");
-            if (clPos != string::npos && clPos < headerEnd) {
+            if (clPos != string::npos && clPos < headerEnd)
+            {
                 size_t clStart = allData.find_first_not_of(" \t", clPos + 15);
                 size_t clEnd = allData.find("\r\n", clStart);
                 string clStr = allData.substr(clStart, clEnd - clStart);
@@ -290,7 +356,8 @@ void handleClient(int clientSocket) {
             size_t bodyStart = headerEnd + 4;
             size_t bodyReceived = allData.size() - bodyStart;
             cout << "BODY RECEIVED: " << bodyReceived << " bytes, EXPECTED: " << contentLength << " bytes" << endl;
-            if (contentLength == 0 || bodyReceived >= static_cast<size_t>(contentLength)) {
+            if (contentLength == 0 || bodyReceived >= static_cast<size_t>(contentLength))
+            {
                 size_t firstNewline = allData.find("\r\n");
                 string requestLine = allData.substr(0, firstNewline);
                 string allHeaders = allData.substr(0, headerEnd);
@@ -305,112 +372,162 @@ void handleClient(int clientSocket) {
     close(clientSocket);
 }
 
-void handleRequest(int clientSocket, const string &requestLine, const string &allHeaders, const string &body) {
+string handleStatsEndpoint()
+{
+    string json = R"({"status":"success","data":{"total":150,"active":145,"inactive":5}})";
+    return httpResponse(200, "application/json", json);
+}
+
+string handleDepartmentsEndpoint()
+{
+    string json = R"({"status":"success","departments":[{"name":"CSE","count":45},{"name":"ECE","count":35},{"name":"ME","count":40},{"name":"CIVIL","count":30}]})";
+    return httpResponse(200, "application/json", json);
+}
+
+void handleRequest(int clientSocket, const string &requestLine, const string &allHeaders, const string &body)
+{
     string path = parseRequestPath(requestLine);
     cout << "REQUEST: " << path << endl;
-    if (path == "/api/auth/login") {
+    if (path == "/api/auth/login")
+    {
         sendAll(clientSocket, handleLogin(body));
-    } else if (path == "/api/auth/me") {
+    }
+    else if (path == "/api/auth/me")
+    {
         sendAll(clientSocket, handleAuthMe(allHeaders));
-    } else if (path == "/api/faculty/list") {
+    }
+    else if (path == "/api/faculty/list")
+    {
         string search = getQueryParam(requestLine, "search");
         sendAll(clientSocket, handleListFaculty(search));
-    } else if (path == "/") {
+    }
+    else if (path == "/api/faculty")
+    {
+        sendAll(clientSocket, handleListFaculty());
+    }
+    else if (path == "/api/stats/summary")
+    {
+        sendAll(clientSocket, handleStatsEndpoint());
+    }
+    else if (path == "/api/stats/departments")
+    {
+        sendAll(clientSocket, handleDepartmentsEndpoint());
+    }
+    else if (path == "/")
+    {
         ifstream file("public/index.html", ios::binary);
-        if (file) {
+        if (file)
+        {
             string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
             sendAll(clientSocket, httpResponse(200, "text/html", content));
-        } else {
+        }
+        else
+        {
             sendAll(clientSocket, httpResponse(404, "text/plain", "Not Found"));
         }
-    } else if (path.find(".html") != string::npos) {
+    }
+    else if (path.find(".html") != string::npos)
+    {
         string filePath = "public" + path;
         ifstream file(filePath, ios::binary);
-        if (file) {
+        if (file)
+        {
             string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
             sendAll(clientSocket, httpResponse(200, "text/html", content));
-        } else {
+        }
+        else
+        {
             sendAll(clientSocket, httpResponse(404, "application/json", R"({"error":"File not found"})"));
         }
-    } else if (path.find(".css") != string::npos || path.find(".js") != string::npos ||
-               path.find(".png") != string::npos || path.find(".jpg") != string::npos ||
-               path.find(".jpeg") != string::npos || path.find(".ico") != string::npos ||
-               path.find(".txt") != string::npos) {
-        string filePath;
-        if (path.find("/css/") == 0 || path.find("/js/") == 0 || path.find("/assets/") == 0 || path.find("/components/") == 0) {
-            filePath = "." + path;
-        } else {
-            filePath = "public" + path;
-        }
+    }
+    else if (path.find(".css") != string::npos || path.find(".js") != string::npos ||
+             path.find(".png") != string::npos || path.find(".jpg") != string::npos ||
+             path.find(".jpeg") != string::npos || path.find(".ico") != string::npos ||
+             path.find(".txt") != string::npos)
+    {
+        string filePath = "public" + path;
         cout << "LOADING FILE: " << filePath << endl;
         ifstream file(filePath, ios::binary);
-        if (file) {
+        if (file)
+        {
             cout << "FILE FOUND" << endl;
             string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
-            string contentType = path.find(".css") != string::npos ? "text/css" :
-                                 path.find(".js") != string::npos ? "application/javascript" :
-                                 path.find(".png") != string::npos ? "image/png" :
-                                 path.find(".ico") != string::npos ? "image/x-icon" :
-                                 path.find(".jpg") != string::npos || path.find(".jpeg") != string::npos ? "image/jpeg" : "text/plain";
+            string contentType = path.find(".css") != string::npos ? "text/css" : path.find(".js") != string::npos                                      ? "application/javascript"
+                                                                              : path.find(".png") != string::npos                                       ? "image/png"
+                                                                              : path.find(".ico") != string::npos                                       ? "image/x-icon"
+                                                                              : path.find(".jpg") != string::npos || path.find(".jpeg") != string::npos ? "image/jpeg"
+                                                                                                                                                        : "text/plain";
             sendAll(clientSocket, httpResponse(200, contentType, content));
-        } else {
+        }
+        else
+        {
             cout << "FILE NOT FOUND: " << filePath << endl;
             sendAll(clientSocket, httpResponse(404, "application/json", R"({"error":"File not found"})"));
         }
-    } else {
+    }
+    else
+    {
         sendAll(clientSocket, httpResponse(404, "application/json", R"({"error":"Not Found"})"));
     }
 }
 
-int main() {
+int main()
+{
     const char *portEnv = getenv("PORT");
-    if (portEnv) PORT = stoi(portEnv);
-    
+    if (portEnv)
+        PORT = stoi(portEnv);
+
     int serverSocket = socket(AF_INET, SOCK_STREAM, 0);
-    if (serverSocket < 0) {
+    if (serverSocket < 0)
+    {
         cerr << "Error creating socket" << endl;
         return 1;
     }
-    
+
     int opt = 1;
-    if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0) {
+    if (setsockopt(serverSocket, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt)) < 0)
+    {
         cerr << "Error setting socket options" << endl;
         close(serverSocket);
         return 1;
     }
-    
+
     sockaddr_in serverAddr;
     memset(&serverAddr, 0, sizeof(serverAddr));
     serverAddr.sin_family = AF_INET;
     serverAddr.sin_addr.s_addr = htonl(INADDR_ANY);
     serverAddr.sin_port = htons(PORT);
-    
-    if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0) {
+
+    if (bind(serverSocket, (struct sockaddr *)&serverAddr, sizeof(serverAddr)) < 0)
+    {
         cerr << "Error binding socket" << endl;
         close(serverSocket);
         return 1;
     }
-    
-    if (listen(serverSocket, 5) < 0) {
+
+    if (listen(serverSocket, 5) < 0)
+    {
         cerr << "Error listening on socket" << endl;
         close(serverSocket);
         return 1;
     }
-    
+
     cout << "Server running on port " << PORT << endl;
-    
-    while (true) {
+
+    while (true)
+    {
         sockaddr_in clientAddr;
         socklen_t clientAddrLen = sizeof(clientAddr);
         int clientSocket = accept(serverSocket, (struct sockaddr *)&clientAddr, &clientAddrLen);
-        if (clientSocket < 0) {
+        if (clientSocket < 0)
+        {
             cerr << "Error accepting client" << endl;
             continue;
         }
         thread clientThread(handleClient, clientSocket);
         clientThread.detach();
     }
-    
+
     close(serverSocket);
     return 0;
 }
