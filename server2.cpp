@@ -374,13 +374,13 @@ void handleClient(int clientSocket)
 
 string handleStatsEndpoint()
 {
-    string json = R"({"status":"success","data":{"total":150,"active":145,"inactive":5}})";
+    string json = R"({"totalFaculty":150,"departments":4,"students":2500,"recentlyAdded":15})";
     return httpResponse(200, "application/json", json);
 }
 
 string handleDepartmentsEndpoint()
 {
-    string json = R"({"status":"success","departments":[{"name":"CSE","count":45},{"name":"ECE","count":35},{"name":"ME","count":40},{"name":"CIVIL","count":30}]})";
+    string json = R"({"departments":[{"name":"CSE","count":45},{"name":"ECE","count":35},{"name":"ME","count":40},{"name":"CIVIL","count":30}]})";
     return httpResponse(200, "application/json", json);
 }
 
@@ -428,15 +428,26 @@ void handleRequest(int clientSocket, const string &requestLine, const string &al
     }
     else if (path.find(".html") != string::npos)
     {
-        string filePath = "public" + path;
+        string filePath;
+        if (path.find("/components/") == 0)
+        {
+            filePath = "." + path;
+        }
+        else
+        {
+            filePath = "public" + path;
+        }
+        cout << "LOADING HTML: " << filePath << endl;
         ifstream file(filePath, ios::binary);
         if (file)
         {
+            cout << "HTML FOUND" << endl;
             string content((istreambuf_iterator<char>(file)), istreambuf_iterator<char>());
             sendAll(clientSocket, httpResponse(200, "text/html", content));
         }
         else
         {
+            cout << "HTML NOT FOUND: " << filePath << endl;
             sendAll(clientSocket, httpResponse(404, "application/json", R"({"error":"File not found"})"));
         }
     }
