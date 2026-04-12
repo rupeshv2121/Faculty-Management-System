@@ -252,84 +252,97 @@ string handleListFaculty(const string &search = "")
 }
 
 // Simple JSON parser for login credentials
-map<string, string> parseJSON(const string &json) {
+map<string, string> parseJSON(const string &json)
+{
     map<string, string> result;
     size_t pos = 0;
-    while ((pos = json.find("\"", pos)) != string::npos) {
+    while ((pos = json.find("\"", pos)) != string::npos)
+    {
         size_t keyStart = pos + 1;
         size_t keyEnd = json.find("\"", keyStart);
-        if (keyEnd == string::npos) break;
-        
+        if (keyEnd == string::npos)
+            break;
+
         string key = json.substr(keyStart, keyEnd - keyStart);
-        
+
         size_t colonPos = json.find(":", keyEnd);
-        if (colonPos == string::npos) break;
-        
+        if (colonPos == string::npos)
+            break;
+
         size_t valueStart = json.find("\"", colonPos);
-        if (valueStart == string::npos) break;
+        if (valueStart == string::npos)
+            break;
         valueStart++;
-        
+
         size_t valueEnd = json.find("\"", valueStart);
-        if (valueEnd == string::npos) break;
-        
+        if (valueEnd == string::npos)
+            break;
+
         string value = json.substr(valueStart, valueEnd - valueStart);
         result[key] = value;
-        
+
         pos = valueEnd + 1;
     }
     return result;
 }
 
-string handleLogin(const string &body) {
+string handleLogin(const string &body)
+{
     auto data = parseJSON(body);
     string username = data["username"];
     string password = data["password"];
-    
+
     auto faculty = loadData();
-    for (const auto &f : faculty) {
-        if (f.id == username && f.pass == password) {
+    for (const auto &f : faculty)
+    {
+        if (f.id == username && f.pass == password)
+        {
             string sessionId = "session_" + to_string(rand() % 100000);
             sessions[sessionId] = {f.role, f.id};
-            
-            string response = R"({"status":"success","sessionId":")" + sessionId + 
-                            R"(","userId":")" + jsonEscape(f.id) +
-                            R"(","name":")" + jsonEscape(f.name) +
-                            R"(","role":")" + jsonEscape(f.role) + R"("})";
+
+            string response = R"({"status":"success","sessionId":")" + sessionId +
+                              R"(","userId":")" + jsonEscape(f.id) +
+                              R"(","name":")" + jsonEscape(f.name) +
+                              R"(","role":")" + jsonEscape(f.role) + R"("})";
             return httpResponse(200, "application/json", response);
         }
     }
-    
+
     return httpResponse(401, "application/json", R"({"status":"error","message":"Invalid credentials"})");
 }
 
-string handleAuthMe(const string &requestLine) {
+string handleAuthMe(const string &requestLine)
+{
     // Extract session from cookie or header
     size_t cookiePos = requestLine.find("Cookie:");
-    if (cookiePos == string::npos) {
+    if (cookiePos == string::npos)
+    {
         return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
     }
-    
+
     string cookie = requestLine.substr(cookiePos + 7);
     size_t sessionStart = cookie.find("sessionId=");
-    if (sessionStart == string::npos) {
+    if (sessionStart == string::npos)
+    {
         return httpResponse(401, "application/json", R"({"status":"error","message":"Not authenticated"})");
     }
-    
+
     sessionStart += 10;
     size_t sessionEnd = cookie.find(";", sessionStart);
-    if (sessionEnd == string::npos) sessionEnd = cookie.find("\r", sessionStart);
-    
+    if (sessionEnd == string::npos)
+        sessionEnd = cookie.find("\r", sessionStart);
+
     string sessionId = cookie.substr(sessionStart, sessionEnd - sessionStart);
-    
-    if (sessions.find(sessionId) != sessions.end()) {
+
+    if (sessions.find(sessionId) != sessions.end())
+    {
         auto sess = sessions[sessionId];
         string response = R"({"status":"success","userId":")" + jsonEscape(sess.userId) +
-                        R"(","role":")" + jsonEscape(sess.role) + R"("})";
+                          R"(","role":")" + jsonEscape(sess.role) + R"("})";
         return httpResponse(200, "application/json", response);
     }
-    
+
     return httpResponse(401, "application/json", R"({"status":"error","message":"Session expired"})");
-}
 }
 
 void handleRequest(int clientSocket, const string &requestLine, const string &body)
