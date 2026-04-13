@@ -70,7 +70,7 @@ function renderFacultyCard(editMode = false) {
     html += `
       <div class="card detail-card">
         <div class="detail-header">
-          <div class="detail-avatar" style="width:56px;height:56px;border-radius:50%;border:2px solid var(--navy);background:var(--navy);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700;">${faculty.name.charAt(0)}</div>
+          <div class="detail-avatar" style="width:56px;height:56px;border-radius:50%;border:2px solid var(--navy);background:var(--navy);color:#222;display:flex;align-items:center;justify-content:center;font-size:24px;font-weight:700; border:2px solid #f0f0f0;">${faculty.name.charAt(0)}</div>
           <div>
             <h2 style="font-size:24px;font-weight:700;margin:0;">${esc(faculty.name)}</h2>
             <div style="font-size:14px;color:var(--muted);margin-top:4px;">${esc(faculty.designation)} &middot; ${esc(faculty.department)}</div>

@@ -5,7 +5,6 @@ A modern, responsive web application for managing faculty information with role-
 ## 📋 Features
 
 - **Role-Based Authentication**: Admin, Faculty, and Student roles with different permissions
-- **Flexible Login**: Login with Faculty ID, Name, Email, or Custom Username
 - **Faculty Management**: 
   - Admin can create, read, update, and delete faculty records
   - Faculty can update their own information
@@ -78,6 +77,7 @@ web_interface/
 │   └── profiles/           # Profile pages
 │       ├── common.js       # Profile utilities
 │       └── faculty.js      # Faculty profile logic
+│       └── profile.js      # Profile logic
 │
 ├── assets/
 │   ├── logo.png            # Logo image
@@ -101,7 +101,7 @@ web_interface/
 
 1. **Navigate to project directory**:
    ```bash
-   cd c:\Users\hp\OneDrive\Desktop\DSA\C++\Socket_Programming\web_interface
+   cd web_interface
    ```
 
 2. **Compile the C++ Server** (if needed):
@@ -120,8 +120,8 @@ web_interface/
    Windows Socket (Winsock2)
    ====================================
    Port: 8080
-   Find your IP: ipconfig
-   Access: http://<YOUR_IP>:8080
+   Server IP: 192.168.60.238
+   Access: http://192.168.60.238:5000
    ====================================
    ```
 
@@ -144,34 +144,29 @@ web_interface/
 | Faculty | `prof_nesar` | `default123` |
 | Student | `neha` | `neha@123` |
 
-**Alternative Login Methods:**
-- Faculty ID (e.g., `1`, `2`, `3`, etc.)
-- Faculty Name (e.g., `Prof. Izharuddin`)
-- Email (e.g., `izharuddin@zhcet.ac.in`)
-
 ### Admin Dashboard
-- 📊 View system statistics (faculty count, departments, students)
-- ➕ Add new faculty records with username and password
-- ✏️ Update any faculty information
-- 🗑️ Delete faculty records
-- 🔍 Search and filter capabilities
-- 📈 Department-wise breakdown
+-  View system statistics (faculty count, departments, students)
+-  Add new faculty records with username and password
+-  Update any faculty information
+-  Delete faculty records
+-  Search and filter capabilities
+-  Department-wise breakdown
 
 ### Faculty Dashboard
-- 👤 View personal profile information
-- ✏️ Update email and mobile number only
-- 👥 Browse department colleagues
-- 📖 Access full faculty directory
-- 🔍 Search faculty members
+-  View personal profile information
+-  Update email and mobile number only
+-  Browse department colleagues
+-  Access full faculty directory
+-  Search faculty members
 
 ### Student Portal
-- 🔍 Search faculty by name, department, or subject
-- 📞 View contact information
-- 📋 Browse faculty details
-- 🏢 Filter by department
-- 📖 Read-only access to all records
+-  Search faculty by name, department, or subject
+-  View contact information
+-  Browse faculty details
+-  Filter by department
+-  Read-only access to all records
 
-## 🔌 API Endpoints
+## API Endpoints
 
 All API endpoints require active session cookie.
 
@@ -208,7 +203,7 @@ All API endpoints require active session cookie.
 - `GET /api/stats/departments` 
   - Returns: `{departments: [{name, count}, ...]}`
 
-## 📋 Data Format & Validation
+## Data Format & Validation
 
 ### User Data (users.txt - CSV Format)
 
@@ -236,15 +231,7 @@ id, name, department, designation, mobile, email, subject, password, role, usern
 1,Prof. Izharuddin,Computer Engineering,Professor,9412545786,izharuddin@zhcet.ac.in,VLSI Design; Signal Processing; Signal Security,default123,faculty,prof_izhar
 ```
 
-### CSV Safety
-
-File operations use atomic transactions:
-1. Create temporary file (`users.txt.tmp`)
-2. Write all records
-3. Atomic rename (replaces original)
-4. Thread-safe with mutex protection
-
-## 🎨 Design Features
+## Design Features
 
 ### Color Scheme (Green Theme)
 - **Primary Green**: `#2d7a5e` (main buttons, active states)
@@ -268,18 +255,18 @@ File operations use atomic transactions:
 - **Alert System**: Success, error, warning messages
 - **Dashboard Cards**: Statistics and quick actions
 
-## 🔐 Security Features
+## Security Features
 
-- 🔒 **Session Authentication**: HttpOnly cookies, 30-min timeout
-- 👮 **Role-Based Access Control (RBAC)**: Admin/Faculty/Student enforcement
-- 🛡️ **CSRF Protection**: Session validation on state-changing requests
-- ✋ **XSS Prevention**: HTML entity escaping, JSON sanitization
-- ✔️ **Input Validation**: Type checking, length limits, pattern matching
-- 🚫 **CSV Injection Prevention**: Character validation, escaping
-- 🔐 **Thread Safety**: Mutex-protected concurrent operations
-- 🚨 **Error Handling**: Graceful failures, informative messages
+-  **Session Authentication**: HttpOnly cookies, 30-min timeout
+-  **Role-Based Access Control (RBAC)**: Admin/Faculty/Student enforcement
+-  **CSRF Protection**: Session validation on state-changing requests
+-  **XSS Prevention**: HTML entity escaping, JSON sanitization
+-  **Input Validation**: Type checking, length limits, pattern matching
+-  **CSV Injection Prevention**: Character validation, escaping
+-  **Thread Safety**: Mutex-protected concurrent operations
+-  **Error Handling**: Graceful failures, informative messages
 
-## 🧵 Backend Architecture
+## Backend Architecture
 
 ### C++ Server Features
 - **Threading Model**: One thread per client connection
@@ -303,7 +290,7 @@ mutex fileMutex;                        // Protects file operations
 }
 ```
 
-## 📊 JavaScript Architecture
+## JavaScript Architecture
 
 ### Module Organization
 - **api.js**: Centralized API client with error handling
@@ -321,38 +308,7 @@ User Input → Validation → API Call → Server → Response → UI Update
            Error Display ← Error Handling
 ```
 
-## 🐛 Troubleshooting
-
-### Server won't start
-- ✓ Ensure port 8080 is not in use: `netstat -an | find "8080"`
-- ✓ Check firewall settings (may block port 8080)
-- ✓ Run with administrator privileges
-- ✓ Verify Winsock2 is installed: Windows built-in networking library
-
-### Login fails
-- ✓ Check username/password in users.txt
-- ✓ Try using Faculty ID (e.g., `1`, `101`)
-- ✓ Ensure no extra spaces in credentials
-- ✓ Mobile field must be exactly 10 digits (e.g., `9412545786`)
-
-### Faculty not showing
-- ✓ Verify role is `faculty` (not student or admin)
-- ✓ Check filter is not active
-- ✓ Ensure users.txt has correct format with 10 fields
-- ✓ Reload page (Ctrl+F5)
-
-### Mobile validation error
-- ✓ Mobile must be exactly 10 digits
-- ✓ No dashes, spaces, or country codes (e.g., ❌ `+91-9412545786`, ✓ `9412545786`)
-- ✓ White-space is automatically trimmed
-
-### CORS/API errors
-- ✓ Ensure server is running: `http://localhost:8080`
-- ✓ Check browser console (F12) for detailed errors
-- ✓ Verify Content-Type headers are correct
-- ✓ Session cookies may have expired (login again)
-
-## 📝 File Summaries
+## File Summaries
 
 ### Backend
 #### **server.cpp** (Main Application)
@@ -362,7 +318,7 @@ User Input → Validation → API Call → Server → Response → UI Update
   - `main()`: Server initialization and socket setup
   - `handleClient()`: Per-client request handler with logging
   - `parseHttpRequest()`: HTTP request parsing
-  - `authenticateUser()`: Login with ID/Name/Email/Username support
+  - `authenticateUser()`: Login with ID/Username support
   - `loadData()`: CSV file parsing with mutex protection
   - `saveData()`: Atomic file write operations
   - `facultyToJson()`: Faculty object to JSON serialization

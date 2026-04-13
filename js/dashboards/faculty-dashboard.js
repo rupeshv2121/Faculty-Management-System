@@ -23,35 +23,6 @@ async function renderFacultyDashboard(user) {
 
       ${myRecord
         ? `
-        <!-- My Profile Card -->
-        <div class="card" style="margin-bottom:24px;border-left:4px solid var(--navy);">
-          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-            <div style="font-size:15px;font-weight:700;color:black;">My Profile</div>
-            <a href="profile.html" class="btn btn-outline btn-sm">Edit Contact Info</a>
-          </div>
-          <div style="display:flex;align-items:center;gap:16px;margin-bottom:16px;">
-            <div style="width:56px;height:56px;border-radius:50%;border:1px solid var(--muted);background:var(--navy);color:#222;display:flex;align-items:center;justify-content:center;font-size:22px;font-weight:700;flex-shrink:0;">${myRecord.name.charAt(
-          0
-        )}</div>
-            <div>
-              <div style="font-size:18px;font-weight:700;">${esc(myRecord.name)}</div>
-              <div style="font-size:13px;color:var(--muted);">${esc(myRecord.designation)} &middot; ${esc(
-          myRecord.department
-        )}</div>
-            </div>
-          </div>
-          <div class="detail-grid" style="margin-bottom:14px;">
-            <div class="detail-field"><div class="field-label">Subject</div><div class="field-value">${esc(myRecord.subject)}</div></div>
-            <div class="detail-field"><div class="field-label">Qualification</div><div class="field-value">${esc(myRecord.qualification)}</div></div>
-            <div class="detail-field"><div class="field-label">Experience</div><div class="field-value">${myRecord.experience} year(s)</div></div>
-          </div>
-          <div style="font-size:12px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--muted);margin-bottom:8px;">Contact (you can update these)</div>
-          <div class="contact-info-row">
-            <div class="contact-chip">&#9993; ${esc(myRecord.email)}</div>
-            <div class="contact-chip">&#128222; ${esc(myRecord.mobile)}</div>
-          </div>
-        </div>
-
         <!-- Stats row -->
         <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:16px;margin-bottom:24px;">
           <div class="stat-card" style="border-top:3px solid var(--navy);">

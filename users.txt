@@ -31,5 +31,3 @@
 28,Prof. Izharul Haq Farooqi,Civil Engineering,Professor,9412176757,farooqi_izhar@yahoo.com,Environmental Engineering; Corrosion Control,default123,faculty,prof_izharul
 29,Prof. Javed Alam,Civil Engineering,Professor,9837169427,jalam.cv@amu.ac.in,Water Resources; Soft Computing; Porous Media Flow,default123,faculty,prof_javed
 30,Prof. Mohd. Masroor Alam,Civil Engineering,Professor,9412459471,mmalam.cv@amu.ac.in,Engineering Geology; Sedimentology; Rock Engineering; Disaster Management,default123,faculty,prof_masroor
-104,Rupesh Varshney,Computer Engineering,Guest Faculty,12345612525,rupes&h.v@zhcet.ac.in,Algorithms,faculty,faculty,rupesh_v
-105,bjbfhj,bhfbh,bhjb,1234567890,test@gmail.com,bhbfh,jnfjdbvjhb,faculty,fbghjb

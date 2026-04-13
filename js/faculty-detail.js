@@ -20,7 +20,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 async function loadFaculty() {
   try {
     faculty = await api.getFaculty(facultyId);
-    document.getElementById("pageTitle").textContent = faculty.name;
+    // document.getElementById("pageTitle").textContent = faculty.name;
     renderView();
   } catch (err) {
     document.getElementById("content").innerHTML =

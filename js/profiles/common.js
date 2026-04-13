@@ -25,8 +25,8 @@ function renderAccountCard(user) {
 /** Render empty state for non-faculty roles */
 function renderNonFacultyCard(role) {
   const messages = {
-    admin: { icon: "👑", title: "Administrator Account", desc: "You can manage all faculty records and view system analytics." },
-    student: { icon: "🎒", title: "Student Account", desc: "You can view and search the faculty directory from the sidebar." }
+    admin: { icon: "", title: "Administrator Account", desc: "You can manage all faculty records and view system analytics." },
+    student: { icon: "", title: "Student Account", desc: "You can view and search the faculty directory from the sidebar." }
   };
   const msg = messages[role] || messages.student;
   return `

@@ -1,4 +1,3 @@
-// Script for faculty.html moved from inline <script>
 let user = null;
 let searchTimeout;
 
@@ -204,5 +203,3 @@ async function confirmDelete(id, name) {
     showAlert("alertBox", err.error || "Failed to delete faculty");
   }
 }
-
-// esc() function is now in js/common.js - shared globally

@@ -1,8 +1,3 @@
-/**
- * Main Dashboard Controller
- * Imports and orchestrates role-specific dashboard modules
- */
-
 let user = null;
 
 document.addEventListener("DOMContentLoaded", async () => {
