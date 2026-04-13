@@ -2,6 +2,7 @@
 #include <array>
 #include <cctype>
 #include <cstdio>
+#include <cstring>
 #include <filesystem>
 #include <fstream>
 #include <iomanip>
@@ -806,6 +807,21 @@ string generateSessionId()
     return ss.str();
 }
 
+string getServerIpAddress()
+{
+    char hostname[256];
+    if (gethostname(hostname, sizeof(hostname)) == SOCKET_ERROR)
+        return "127.0.0.1";
+
+    hostent *hostInfo = gethostbyname(hostname);
+    if (!hostInfo || !hostInfo->h_addr_list[0])
+        return "127.0.0.1";
+
+    in_addr addr;
+    memcpy(&addr, hostInfo->h_addr_list[0], sizeof(in_addr));
+    return inet_ntoa(addr);
+}
+
 string getSessionIdFromCookie(const map<string, string> &headers)
 {
     auto it = headers.find("cookie");
@@ -1392,13 +1408,15 @@ int main()
         return 1;
     }
 
+    string serverIp = getServerIpAddress();
+
     cout << "\n====================================\n";
     cout << "FACULTY MANAGEMENT SYSTEM - SERVER\n";
-    cout << "Windows Socket (Winsock2)\n";
+    cout << "Windows Socket\n";
     cout << "====================================\n";
     cout << "Port: " << PORT << "\n";
-    cout << "Find your IP: ipconfig\n";
-    cout << "Access: http://<YOUR_IP>:" << PORT << "\n";
+    cout << "Server IP: " << serverIp << "\n";
+    cout << "Access: http://" << serverIp << ":" << PORT << "\n";
     cout << "====================================\n\n";
 
     while (true)

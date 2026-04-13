@@ -12,6 +12,13 @@
       rel="stylesheet"
     />
     <link rel="stylesheet" href="../css/landing.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
+      integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
+      crossorigin="anonymous"
+      referrerpolicy="no-referrer"
+    />
   </head>
   <body>
     <!-- NAVBAR -->
@@ -78,7 +85,7 @@
         </div>
         <div class="features-grid">
           <div class="feat-card dark">
-            <div class="icon">🔐</div>
+            <div class="icon"><i class="fa-solid fa-user-lock" style="color: rgb(255, 255, 255);"></i></div>
             <h3>Role-Based Access Control</h3>
             <p>
               Three distinct roles — Admin, Faculty, and Student — each with
@@ -87,7 +94,7 @@
             </p>
           </div>
           <div class="feat-card">
-            <div class="icon">🍪</div>
+            <div class="icon"><i class="fa-solid fa-cookie" ></i></div>
             <h3>Session Authentication</h3>
             <p>
               HTTP-only cookie sessions with 24-hour TTL, randomly generated
@@ -96,7 +103,7 @@
             </p>
           </div>
           <div class="feat-card">
-            <div class="icon">📂</div>
+            <div class="icon"><i class="fa-solid fa-file"></i></div>
             <h3>File-Based Storage</h3>
             <p>
               Pipe-delimited flat-file storage (users.txt)
@@ -105,7 +112,7 @@
             </p>
           </div>
           <div class="feat-card">
-            <div class="icon">📊</div>
+            <div class="icon"><i class="fa-solid fa-chart-bar" ></i></div>
             <h3>Role-Specific Dashboards</h3>
             <p>
               Admin sees stats and charts, Faculty sees their profile and
@@ -114,7 +121,7 @@
             </p>
           </div>
           <div class="feat-card">
-            <div class="icon">✏️</div>
+            <div class="icon"><i class="fa-solid fa-edit"></i></div>
             <h3>Full CRUD Operations</h3>
             <p>
               Admin can create, view, update, and delete faculty records.
@@ -123,7 +130,7 @@
             </p>
           </div>
           <div class="feat-card">
-            <div class="icon">🔍</div>
+            <div class="icon"><i class="fa-solid fa-search" ></i></div>
             <h3>Live Faculty Search</h3>
             <p>
               Real-time search by name, department, or subject, with results
@@ -131,7 +138,7 @@
             </p>
           </div>
           <div class="feat-card">
-            <div class="icon">📈</div>
+            <div class="icon"><i class="fa-solid fa-chart-line" ></i></div>
             <h3>Department Analytics</h3>
             <p>
               Bar chart visualizing faculty distribution across departments,
@@ -139,7 +146,7 @@
             </p>
           </div>
           <div class="feat-card">
-            <div class="icon">🛡️</div>
+            <div class="icon"><i class="fa-solid fa-shield-alt"></i></div>
             <h3>CORS &amp; Security</h3>
             <p>
               Properly configured CORS with credentials support, input
@@ -166,7 +173,7 @@
           <div class="role-card">
             <div class="role-header" style="background: #1e3a5f">
               <div class="rh-top">
-                <span class="ricon">👑</span>
+                <span class="ricon"><i class="fa-solid fa-users-gear" style="color: rgb(250, 252, 255);"></i></span>
                 <div>
                   <div class="rtitle">Administrator</div>
                   <div class="rsub">System Manager</div>
@@ -207,7 +214,7 @@
           <div class="role-card">
             <div class="role-header" style="background: #c9973a">
               <div class="rh-top">
-                <span class="ricon">🧑‍🏫</span>
+                <span class="ricon"><i class="fa-solid fa-user-tie" style="color:rgb(255,255,255)"></i></span>
                 <div>
                   <div class="rtitle">Faculty</div>
                   <div class="rsub">Teaching Staff</div>
@@ -250,7 +257,7 @@
           <div class="role-card">
             <div class="role-header" style="background: #3a8a6a">
               <div class="rh-top">
-                <span class="ricon">🎒</span>
+                <span class="ricon"><i class="fa-solid fa-user-graduate" style="color: rgb(250, 252, 255);"></i></span>
                 <div>
                   <div class="rtitle">Student</div>
                   <div class="rsub">Enrolled Student</div>
@@ -301,7 +308,7 @@
       <div class="steps">
         <div class="step-card">
           <div class="step-num">01</div>
-          <div class="step-icon">🌐</div>
+          <div class="step-icon"><i class="fa-solid fa-globe"></i></div>
           <h3>Client Request</h3>
           <p>
             User visits the app and logs in with their role-specific credentials
@@ -310,7 +317,7 @@
         </div>
         <div class="step-card">
           <div class="step-num">02</div>
-          <div class="step-icon">🔐</div>
+          <div class="step-icon"><i class="fa-solid fa-user-lock"></i></div>
           <h3>Auth &amp; Session</h3>
           <p>
             Server validates credentials, hashes password with SHA-256 + salt,
@@ -319,7 +326,7 @@
         </div>
         <div class="step-card">
           <div class="step-num">03</div>
-          <div class="step-icon">⚙️</div>
+          <div class="step-icon"><i class="fa-solid fa-location-arrow"></i></div>
           <h3>API Processing</h3>
           <p>
             Express routes check session + role, then read/write from flat-file
@@ -328,7 +335,7 @@
         </div>
         <div class="step-card">
           <div class="step-num">04</div>
-          <div class="step-icon">📊</div>
+          <div class="step-icon"><i class="fa-solid fa-chart-bar"></i></div>
           <h3>Role Dashboard</h3>
           <p>
             Response is returned to the client and the role-specific dashboard
@@ -345,9 +352,7 @@
         Log in as any role to experience the full application. All demo accounts
         are pre-loaded with sample data.
       </p>
-      <a href="login.html" class="btn-gold" style="display: inline-block"></a>
-        Launch Application</a
-      >
+      <a href="login.html" class="btn-gold" style="display: inline-block">Launch Application</a>
     </section>
 
     <!-- FOOTER -->
